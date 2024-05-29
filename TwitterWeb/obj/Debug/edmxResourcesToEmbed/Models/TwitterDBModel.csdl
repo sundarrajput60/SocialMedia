@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="TwitterDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="UserEmail" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="UserPassword" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="DateOfBirth" Type="DateTime" Precision="3" />
+    <Property Name="Bio" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+    <Property Name="ProfilePic" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="ProfileBgPic" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="CreatedAt" Type="DateTime" Precision="3" />
+    <Property Name="FirstName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="Gender" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Name="Country" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="UsersTweets" Relationship="TwitterDBModel.FK__UsersTwee__UserI__0BC6C43E" FromRole="User" ToRole="UsersTweet" />
+    <NavigationProperty Name="LikeTweets" Relationship="TwitterDBModel.FK_User" FromRole="User" ToRole="LikeTweet" />
+    <NavigationProperty Name="CommentTweets" Relationship="TwitterDBModel.FK_User_Comment" FromRole="User" ToRole="CommentTweet" />
+    <NavigationProperty Name="FollowUsers" Relationship="TwitterDBModel.FK_UserId_ReceiverId" FromRole="User" ToRole="FollowUser" />
+    <NavigationProperty Name="FollowUsers1" Relationship="TwitterDBModel.FK_UserId_SenderId" FromRole="User" ToRole="FollowUser" />
+    <NavigationProperty Name="UserNotifications" Relationship="TwitterDBModel.FK_UserId_Notification" FromRole="User" ToRole="UserNotification" />
+    <NavigationProperty Name="CommentReplies" Relationship="TwitterDBModel.FK__CommentRe__UserI__5165187F" FromRole="User" ToRole="CommentReply" />
+  </EntityType>
+  <EntityContainer Name="DBContext" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Users" EntityType="Self.User" />
+    <FunctionImport Name="AddUsers">
+      <Parameter Name="UserName" Mode="In" Type="String" />
+      <Parameter Name="UserEmail" Mode="In" Type="String" />
+      <Parameter Name="UserPassword" Mode="In" Type="String" />
+      <Parameter Name="ProfilePic" Mode="In" Type="String" />
+      <Parameter Name="ProfileBgPic" Mode="In" Type="String" />
+    </FunctionImport>
+    <EntitySet Name="UsersTweets" EntityType="TwitterDBModel.UsersTweet" />
+    <AssociationSet Name="FK__UsersTwee__UserI__0BC6C43E" Association="TwitterDBModel.FK__UsersTwee__UserI__0BC6C43E">
+      <End Role="User" EntitySet="Users" />
+      <End Role="UsersTweet" EntitySet="UsersTweets" />
+    </AssociationSet>
+    <EntitySet Name="LikeTweets" EntityType="TwitterDBModel.LikeTweet" />
+    <AssociationSet Name="FK_Tweet" Association="TwitterDBModel.FK_Tweet">
+      <End Role="UsersTweet" EntitySet="UsersTweets" />
+      <End Role="LikeTweet" EntitySet="LikeTweets" />
+    </AssociationSet>
+    <AssociationSet Name="FK_User" Association="TwitterDBModel.FK_User">
+      <End Role="User" EntitySet="Users" />
+      <End Role="LikeTweet" EntitySet="LikeTweets" />
+    </AssociationSet>
+    <EntitySet Name="CommentTweets" EntityType="TwitterDBModel.CommentTweet" />
+    <AssociationSet Name="FK_TweetId_Comment" Association="TwitterDBModel.FK_TweetId_Comment">
+      <End Role="UsersTweet" EntitySet="UsersTweets" />
+      <End Role="CommentTweet" EntitySet="CommentTweets" />
+    </AssociationSet>
+    <AssociationSet Name="FK_User_Comment" Association="TwitterDBModel.FK_User_Comment">
+      <End Role="User" EntitySet="Users" />
+      <End Role="CommentTweet" EntitySet="CommentTweets" />
+    </AssociationSet>
+    <EntitySet Name="FollowUsers" EntityType="TwitterDBModel.FollowUser" />
+    <AssociationSet Name="FK_UserId_ReceiverId" Association="TwitterDBModel.FK_UserId_ReceiverId">
+      <End Role="User" EntitySet="Users" />
+      <End Role="FollowUser" EntitySet="FollowUsers" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UserId_SenderId" Association="TwitterDBModel.FK_UserId_SenderId">
+      <End Role="User" EntitySet="Users" />
+      <End Role="FollowUser" EntitySet="FollowUsers" />
+    </AssociationSet>
+    <EntitySet Name="UserNotifications" EntityType="TwitterDBModel.UserNotification" />
+    <AssociationSet Name="FK_TweetId_Notification" Association="TwitterDBModel.FK_TweetId_Notification">
+      <End Role="UsersTweet" EntitySet="UsersTweets" />
+      <End Role="UserNotification" EntitySet="UserNotifications" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UserId_Notification" Association="TwitterDBModel.FK_UserId_Notification">
+      <End Role="User" EntitySet="Users" />
+      <End Role="UserNotification" EntitySet="UserNotifications" />
+    </AssociationSet>
+    <EntitySet Name="CommentReplies" EntityType="TwitterDBModel.CommentReply" />
+    <AssociationSet Name="FK__CommentRe__Comme__5070F446" Association="TwitterDBModel.FK__CommentRe__Comme__5070F446">
+      <End Role="CommentTweet" EntitySet="CommentTweets" />
+      <End Role="CommentReply" EntitySet="CommentReplies" />
+    </AssociationSet>
+    <AssociationSet Name="FK__CommentRe__UserI__5165187F" Association="TwitterDBModel.FK__CommentRe__UserI__5165187F">
+      <End Role="User" EntitySet="Users" />
+      <End Role="CommentReply" EntitySet="CommentReplies" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="UsersTweet">
+    <Key>
+      <PropertyRef Name="TweetId" />
+    </Key>
+    <Property Name="TweetId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TweetText" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+    <Property Name="TweetImg" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="TweetPostedTime" Type="DateTime" Precision="3" />
+    <Property Name="UserId" Type="Int32" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK__UsersTwee__UserI__0BC6C43E" FromRole="UsersTweet" ToRole="User" />
+    <Property Name="IsDeleted" Type="Boolean" />
+    <NavigationProperty Name="LikeTweets" Relationship="TwitterDBModel.FK_Tweet" FromRole="UsersTweet" ToRole="LikeTweet" />
+    <Property Name="LikeCount" Type="Int32" />
+    <Property Name="CommentCount" Type="Int32" />
+    <NavigationProperty Name="CommentTweets" Relationship="TwitterDBModel.FK_TweetId_Comment" FromRole="UsersTweet" ToRole="CommentTweet" />
+    <NavigationProperty Name="UserNotifications" Relationship="TwitterDBModel.FK_TweetId_Notification" FromRole="UsersTweet" ToRole="UserNotification" />
+  </EntityType>
+  <Association Name="FK__UsersTwee__UserI__0BC6C43E">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.UsersTweet" Role="UsersTweet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="UsersTweet">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="LikeTweet">
+    <Key>
+      <PropertyRef Name="LikeId" />
+    </Key>
+    <Property Name="LikeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TweetId" Type="Int32" />
+    <Property Name="UserId" Type="Int32" />
+    <Property Name="LikedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="UsersTweet" Relationship="TwitterDBModel.FK_Tweet" FromRole="LikeTweet" ToRole="UsersTweet" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK_User" FromRole="LikeTweet" ToRole="User" />
+  </EntityType>
+  <Association Name="FK_Tweet">
+    <End Type="TwitterDBModel.UsersTweet" Role="UsersTweet" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.LikeTweet" Role="LikeTweet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UsersTweet">
+        <PropertyRef Name="TweetId" />
+      </Principal>
+      <Dependent Role="LikeTweet">
+        <PropertyRef Name="TweetId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_User">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.LikeTweet" Role="LikeTweet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="LikeTweet">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="CommentTweet">
+    <Key>
+      <PropertyRef Name="CommentId" />
+    </Key>
+    <Property Name="CommentId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TweetId" Type="Int32" />
+    <Property Name="UserId" Type="Int32" />
+    <Property Name="CommentDate" Type="DateTime" Precision="3" />
+    <Property Name="CommentText" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="UsersTweet" Relationship="TwitterDBModel.FK_TweetId_Comment" FromRole="CommentTweet" ToRole="UsersTweet" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK_User_Comment" FromRole="CommentTweet" ToRole="User" />
+    <Property Name="IsDeleted" Type="Boolean" />
+    <NavigationProperty Name="CommentReplies" Relationship="TwitterDBModel.FK__CommentRe__Comme__5070F446" FromRole="CommentTweet" ToRole="CommentReply" />
+  </EntityType>
+  <Association Name="FK_TweetId_Comment">
+    <End Type="TwitterDBModel.UsersTweet" Role="UsersTweet" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.CommentTweet" Role="CommentTweet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UsersTweet">
+        <PropertyRef Name="TweetId" />
+      </Principal>
+      <Dependent Role="CommentTweet">
+        <PropertyRef Name="TweetId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_User_Comment">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.CommentTweet" Role="CommentTweet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="CommentTweet">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="FollowUser">
+    <Key>
+      <PropertyRef Name="FollowId" />
+    </Key>
+    <Property Name="FollowId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SenderId" Type="Int32" />
+    <Property Name="ReceiverId" Type="Int32" />
+    <Property Name="IsFriend" Type="Boolean" />
+    <Property Name="FollowStatus" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Name="FollowDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK_UserId_ReceiverId" FromRole="FollowUser" ToRole="User" />
+    <NavigationProperty Name="User1" Relationship="TwitterDBModel.FK_UserId_SenderId" FromRole="FollowUser" ToRole="User" />
+  </EntityType>
+  <Association Name="FK_UserId_ReceiverId">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.FollowUser" Role="FollowUser" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="FollowUser">
+        <PropertyRef Name="ReceiverId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UserId_SenderId">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.FollowUser" Role="FollowUser" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="FollowUser">
+        <PropertyRef Name="SenderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="UserNotification">
+    <Key>
+      <PropertyRef Name="NotificationId" />
+    </Key>
+    <Property Name="NotificationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserId" Type="Int32" />
+    <Property Name="TweetId" Type="Int32" />
+    <Property Name="NotificationText" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+    <Property Name="NotificationTime" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="UsersTweet" Relationship="TwitterDBModel.FK_TweetId_Notification" FromRole="UserNotification" ToRole="UsersTweet" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK_UserId_Notification" FromRole="UserNotification" ToRole="User" />
+  </EntityType>
+  <Association Name="FK_TweetId_Notification">
+    <End Type="TwitterDBModel.UsersTweet" Role="UsersTweet" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.UserNotification" Role="UserNotification" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UsersTweet">
+        <PropertyRef Name="TweetId" />
+      </Principal>
+      <Dependent Role="UserNotification">
+        <PropertyRef Name="TweetId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UserId_Notification">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.UserNotification" Role="UserNotification" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="UserNotification">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="CommentReply">
+    <Key>
+      <PropertyRef Name="ReplyId" />
+    </Key>
+    <Property Name="ReplyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ReplyText" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="CommentId" Type="Int32" />
+    <Property Name="UserId" Type="Int32" />
+    <Property Name="ReplyDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="CommentTweet" Relationship="TwitterDBModel.FK__CommentRe__Comme__5070F446" FromRole="CommentReply" ToRole="CommentTweet" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK__CommentRe__UserI__5165187F" FromRole="CommentReply" ToRole="User" />
+  </EntityType>
+  <Association Name="FK__CommentRe__Comme__5070F446">
+    <End Type="TwitterDBModel.CommentTweet" Role="CommentTweet" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.CommentReply" Role="CommentReply" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CommentTweet">
+        <PropertyRef Name="CommentId" />
+      </Principal>
+      <Dependent Role="CommentReply">
+        <PropertyRef Name="CommentId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__CommentRe__UserI__5165187F">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.CommentReply" Role="CommentReply" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="CommentReply">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

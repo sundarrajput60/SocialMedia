@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="43ffb206e3324674abc0763870f5258d" Name="Diagram1" ZoomLevel="75">
+        <EntityTypeShape EntityType="TwitterDBModel.User" Width="1.5" PointX="1.125" PointY="0.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TwitterDBModel.UsersTweet" Width="1.5" PointX="5.875" PointY="0.875" />
+        <AssociationConnector Association="TwitterDBModel.FK__UsersTwee__UserI__0BC6C43E" />
+        <EntityTypeShape EntityType="TwitterDBModel.LikeTweet" Width="1.5" PointX="8.875" PointY="1.25" />
+        <AssociationConnector Association="TwitterDBModel.FK_Tweet" />
+        <AssociationConnector Association="TwitterDBModel.FK_User" />
+        <EntityTypeShape EntityType="TwitterDBModel.CommentTweet" Width="1.5" PointX="3.625" PointY="0.875" />
+        <AssociationConnector Association="TwitterDBModel.FK_TweetId_Comment" />
+        <AssociationConnector Association="TwitterDBModel.FK_User_Comment" />
+        <EntityTypeShape EntityType="TwitterDBModel.FollowUser" Width="1.5" PointX="1.75" PointY="6" />
+        <AssociationConnector Association="TwitterDBModel.FK_UserId_ReceiverId" />
+        <AssociationConnector Association="TwitterDBModel.FK_UserId_SenderId" />
+        <EntityTypeShape EntityType="TwitterDBModel.UserNotification" Width="1.5" PointX="5.25" PointY="5.375" />
+        <AssociationConnector Association="TwitterDBModel.FK_TweetId_Notification" />
+        <AssociationConnector Association="TwitterDBModel.FK_UserId_Notification" />
+        <EntityTypeShape EntityType="TwitterDBModel.CommentReply" Width="1.5" PointX="8.875" PointY="4.75" />
+        <AssociationConnector Association="TwitterDBModel.FK__CommentRe__Comme__5070F446" />
+        <AssociationConnector Association="TwitterDBModel.FK__CommentRe__UserI__5165187F" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

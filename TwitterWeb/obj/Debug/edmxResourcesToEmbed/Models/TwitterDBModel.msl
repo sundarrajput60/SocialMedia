@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="TwitterDBModelStoreContainer" CdmEntityContainer="DBContext">
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="TwitterDBModel.User">
+        <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="Country" ColumnName="Country" />
+          <ScalarProperty Name="Gender" ColumnName="Gender" />
+          <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="UserName" ColumnName="UserName" />
+          <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
+          <ScalarProperty Name="UserPassword" ColumnName="UserPassword" />
+          <ScalarProperty Name="DateOfBirth" ColumnName="DateOfBirth" />
+          <ScalarProperty Name="Bio" ColumnName="Bio" />
+          <ScalarProperty Name="ProfilePic" ColumnName="ProfilePic" />
+          <ScalarProperty Name="ProfileBgPic" ColumnName="ProfileBgPic" />
+          <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <FunctionImportMapping FunctionImportName="AddUsers" FunctionName="TwitterDBModel.Store.AddUsers" />
+    <EntitySetMapping Name="UsersTweets">
+      <EntityTypeMapping TypeName="TwitterDBModel.UsersTweet">
+        <MappingFragment StoreEntitySet="UsersTweet">
+          <ScalarProperty Name="CommentCount" ColumnName="CommentCount" />
+          <ScalarProperty Name="LikeCount" ColumnName="LikeCount" />
+          <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="TweetPostedTime" ColumnName="TweetPostedTime" />
+          <ScalarProperty Name="TweetImg" ColumnName="TweetImg" />
+          <ScalarProperty Name="TweetText" ColumnName="TweetText" />
+          <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="LikeTweets">
+      <EntityTypeMapping TypeName="TwitterDBModel.LikeTweet">
+        <MappingFragment StoreEntitySet="LikeTweet">
+          <ScalarProperty Name="LikedDate" ColumnName="LikedDate" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+          <ScalarProperty Name="LikeId" ColumnName="LikeId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CommentTweets">
+      <EntityTypeMapping TypeName="TwitterDBModel.CommentTweet">
+        <MappingFragment StoreEntitySet="CommentTweet">
+          <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+          <ScalarProperty Name="CommentText" ColumnName="CommentText" />
+          <ScalarProperty Name="CommentDate" ColumnName="CommentDate" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+          <ScalarProperty Name="CommentId" ColumnName="CommentId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FollowUsers">
+      <EntityTypeMapping TypeName="TwitterDBModel.FollowUser">
+        <MappingFragment StoreEntitySet="FollowUser">
+          <ScalarProperty Name="FollowDate" ColumnName="FollowDate" />
+          <ScalarProperty Name="FollowStatus" ColumnName="FollowStatus" />
+          <ScalarProperty Name="IsFriend" ColumnName="IsFriend" />
+          <ScalarProperty Name="ReceiverId" ColumnName="ReceiverId" />
+          <ScalarProperty Name="SenderId" ColumnName="SenderId" />
+          <ScalarProperty Name="FollowId" ColumnName="FollowId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserNotifications">
+      <EntityTypeMapping TypeName="TwitterDBModel.UserNotification">
+        <MappingFragment StoreEntitySet="UserNotification">
+          <ScalarProperty Name="NotificationTime" ColumnName="NotificationTime" />
+          <ScalarProperty Name="NotificationText" ColumnName="NotificationText" />
+          <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="NotificationId" ColumnName="NotificationId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CommentReplies">
+      <EntityTypeMapping TypeName="TwitterDBModel.CommentReply">
+        <MappingFragment StoreEntitySet="CommentReply">
+          <ScalarProperty Name="ReplyDate" ColumnName="ReplyDate" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="CommentId" ColumnName="CommentId" />
+          <ScalarProperty Name="ReplyText" ColumnName="ReplyText" />
+          <ScalarProperty Name="ReplyId" ColumnName="ReplyId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
