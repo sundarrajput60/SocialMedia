@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace TwitterWeb.Controllers
 {
     public class HomepageController : Controller
     {
+        string conStr = ConfigurationManager.ConnectionStrings["conn"].ConnectionString;
         DBContext db = new DBContext();
 
         // GET: Homepage
@@ -36,12 +38,48 @@ namespace TwitterWeb.Controllers
         [HttpGet]
         public ActionResult GetUser(int id)
         {
-
-            var result = db.Database.SqlQuery<string>("EXEC FindUser @UserId", new SqlParameter("UserId", id)).FirstOrDefault();
-
             Session["UserId"] = id;
-            Session["UserName"] = result;
             return RedirectToAction("Index");
+        }
+
+
+        [HttpGet]
+        [Route("GetNavbarUserData")]
+        public ActionResult GetNavbarUserData()
+        {
+            if (Session["UserId"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            int id = (int)Session["UserId"];
+            User result = null;
+
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("GetUserData", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", id);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            result = new User
+                            {
+                                UserId = Convert.ToInt32(reader["UserId"]),
+                                UserName = reader["UserName"].ToString(),
+                                FirstName = reader["FirstName"].ToString(),
+                                ProfilePic = reader["ProfilePic"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -55,10 +93,13 @@ namespace TwitterWeb.Controllers
             var userId = (int)Session["UserId"];
             try
             {
-                // Fetch tweets
                 var tweets = (from tweet in db.UsersTweets
                               join user in db.Users on tweet.UserId equals user.UserId
-                              where tweet.IsDeleted == null 
+                              where tweet.IsDeleted == null
+                                    && (tweet.UserId == userId // Include own tweets
+                                        || db.FollowUsers.Any(f => f.IsFriend == true &&
+                                            ((f.SenderId == userId && f.ReceiverId == tweet.UserId) ||
+                                             (f.ReceiverId == userId && f.SenderId == tweet.UserId))))
                               select new
                               {
                                   TweetId = tweet.TweetId,
@@ -100,6 +141,8 @@ namespace TwitterWeb.Controllers
                                               }).ToList()
                               }).ToList();
 
+
+
                 var loggedInUserId = new
                 {
                     userId = Session["UserId"]
@@ -115,15 +158,26 @@ namespace TwitterWeb.Controllers
 
         [HttpGet]
         [Route("GetUserTweets")]
-        public ActionResult GetUserTweets()
+        public ActionResult GetUserTweets(int? userId)
         {
             try
             {
+                //var id = 0;
+                if (Session["UserId"] == null)
+                {
+                    return Json("Please Login", JsonRequestBehavior.AllowGet);
+                }
+
                 var id = 0;
-                if(Session["UserId"] != null)
+                if (userId != null)
+                {
+                    id = (int)userId;
+                }
+                else
                 {
                     id = (int)Session["UserId"];
                 }
+                int loggedInId = (int)Session["UserId"];
 
                 // Fetch tweets
                 var tweets = (from tweet in db.UsersTweets
@@ -141,6 +195,7 @@ namespace TwitterWeb.Controllers
                                   UserName = user.UserName,
                                   FirstName = user.FirstName,
                                   ProfilePic = user.ProfilePic,
+                                  IsLiked = db.LikeTweets.Any(lt => lt.TweetId == tweet.TweetId && lt.UserId == loggedInId),
                                   Comments = (from comment in db.CommentTweets
                                               join commentUser in db.Users on comment.UserId equals commentUser.UserId
                                               where comment.TweetId == tweet.TweetId && comment.IsDeleted == null
@@ -152,7 +207,20 @@ namespace TwitterWeb.Controllers
                                                   UserId = commentUser.UserId,
                                                   UserName = commentUser.UserName,
                                                   FirstName = commentUser.FirstName,
-                                                  ProfilePic = commentUser.ProfilePic
+                                                  ProfilePic = commentUser.ProfilePic,
+                                                  Replies = (from reply in db.CommentReplies
+                                                               join replyUser in db.Users on reply.UserId equals replyUser.UserId
+                                                               where reply.CommentId == comment.CommentId
+                                                               select new
+                                                               {
+                                                                   ReplyId = reply.ReplyId,
+                                                                   ReplyText = reply.ReplyText,
+                                                                   ReplyDate = reply.ReplyDate,
+                                                                   UserId = replyUser.UserId,
+                                                                   UserName = replyUser.UserName,
+                                                                   FirstName = replyUser.FirstName,
+                                                                   ProfilePic = replyUser.ProfilePic
+                                                               }).ToList()
                                               }).ToList()
                               }).ToList();
 
@@ -181,15 +249,21 @@ namespace TwitterWeb.Controllers
         [Route("DeleteTweet")]
         public ActionResult DeleteTweet(int tweetId)
         {
-            // Check if the tweet exists
             var tweet = db.UsersTweets.Find(tweetId);
             if (tweet != null)
             {
-                db.Database.ExecuteSqlCommand("EXEC DeleteTweetCommentLike @TweetId", new SqlParameter("@TweetId", tweetId));
-
+                using (SqlConnection connection = new SqlConnection(conStr))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("DeleteTweetCommentLike", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@TweetId", tweetId);
+                        command.ExecuteNonQuery();
+                    }
+                }
                 return Json("deleted", JsonRequestBehavior.AllowGet);
             }
-
             return Json("Tweet not found", JsonRequestBehavior.AllowGet);
         }
 
@@ -255,14 +329,20 @@ namespace TwitterWeb.Controllers
                 }
                 return Json(new { success = true, likeCount = likeCount }, JsonRequestBehavior.AllowGet);
             }
+        }
 
-            void InsertLikeNotification(int notificationUserId, int notificationTweetId)
+        void InsertLikeNotification(int notificationUserId, int notificationTweetId)
+        {
+            using (SqlConnection connection = new SqlConnection(conStr))
             {
-                db.Database.ExecuteSqlCommand("EXEC LikeNotification @UserId, @TweetId",
-                                           new SqlParameter("UserId", notificationUserId),
-                                           new SqlParameter("TweetId", notificationTweetId));
-
-                db.SaveChanges();
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("LikeNotification", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", notificationUserId);
+                    command.Parameters.AddWithValue("@TweetId", notificationTweetId);
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -300,6 +380,7 @@ namespace TwitterWeb.Controllers
                 commentCount = commentCount,
                 comment = new
                 {
+                    UserId = CommentTweet.UserId,
                     CommentId = CommentTweet.CommentId,
                     tweetId = tweetId,
                     CommentText = commentText,
@@ -321,10 +402,17 @@ namespace TwitterWeb.Controllers
         // Method to insert comment notification
         private void InsertCommentNotification(int notificationUserId, int notificationTweetId)
         {
-            db.Database.ExecuteSqlCommand("EXEC CommentNotification @UserId, @TweetId",
-                                           new SqlParameter("UserId", notificationUserId),
-                                           new SqlParameter("TweetId", notificationTweetId));
-            db.SaveChanges();
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("CommentNotification", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", notificationUserId);
+                    command.Parameters.AddWithValue("@TweetId", notificationTweetId);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         // Method to increment the comment count
@@ -366,7 +454,7 @@ namespace TwitterWeb.Controllers
                     DecreaseCommentCount(userTweet);
 
                     // Delete comment notification
-                    DeleteCommentNotification(userId, commentTweet.TweetId);
+                    // DeleteCommentNotification(userId, commentTweet.TweetId);
 
                     return Json(new { success = true, commentCount = userTweet.CommentCount, tweetId = userTweet.TweetId }, JsonRequestBehavior.AllowGet);
                 }
@@ -385,13 +473,13 @@ namespace TwitterWeb.Controllers
         }
 
         // Method to delete comment notification
-        private void DeleteCommentNotification(int notificationUserId, int? notificationTweetId)
-        {
-            db.Database.ExecuteSqlCommand("EXEC DeleteCommentNotification  @UserId, @TweetId",
-                                           new SqlParameter("UserId", notificationUserId),
-                                           new SqlParameter("TweetId", notificationTweetId));
-            db.SaveChanges();
-        }
+        //private void DeleteCommentNotification(int notificationUserId, int? notificationTweetId)
+        //{
+        //    db.Database.ExecuteSqlCommand("EXEC DeleteCommentNotification  @UserId, @TweetId",
+        //                                   new SqlParameter("UserId", notificationUserId),
+        //                                   new SqlParameter("TweetId", notificationTweetId));
+        //    db.SaveChanges();
+        //}
 
         [Route("UserReplyComment")]
         [HttpPost]
@@ -518,6 +606,8 @@ namespace TwitterWeb.Controllers
                     UserName = x.User.UserName,
                     ProfilePic = x.User.ProfilePic,
                     FollowStatus = x.Follow != null ? x.Follow.FollowStatus : null,
+                    SenderId = x.Follow != null ? x.Follow.SenderId : null,
+                    ReceiverId = x.Follow != null ? x.Follow.ReceiverId : null,
                     IsFriend = x.Follow != null ? x.Follow.IsFriend : false
                 })
                 .ToList();
@@ -535,14 +625,34 @@ namespace TwitterWeb.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            var senderId = Session["UserId"];
-            db.Database.ExecuteSqlCommand("EXEC SpFollowUser @SenderId, @ReceiverId",
-                                             new SqlParameter("SenderId", senderId),
-                                             new SqlParameter("ReceiverId", ReceiverId));
-
-            db.SaveChanges();
-
-            return Json("User added succesfully", JsonRequestBehavior.AllowGet);
+            var SenderId = (int)Session["UserId"];
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("SpFollowUser", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@SenderId", SenderId);
+                    command.Parameters.AddWithValue("@ReceiverId", ReceiverId);
+                    command.ExecuteNonQuery();
+                    InsertfriendReqNotification(SenderId, ReceiverId);
+                }
+                return Json("User added succesfully", JsonRequestBehavior.AllowGet);
+            }
+        }
+        public void InsertfriendReqNotification(int SenderId, int ReceiverId)
+        {
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("FriendReqNotification", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@SenderId", SenderId);
+                    command.Parameters.AddWithValue("@ReceiverId", ReceiverId);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public ActionResult Notification()
@@ -567,27 +677,40 @@ namespace TwitterWeb.Controllers
 
             var notifications = (from un in db.UserNotifications
                                  join u in db.Users on un.UserId equals u.UserId
-                                 join t in db.UsersTweets on un.TweetId equals t.TweetId
-                                 where un.UserId != userId && t.UserId == userId
-                                 select new 
+                                 join receiver in db.Users on un.ReceiverId equals receiver.UserId into receiverJoin
+                                 from receiver in receiverJoin.DefaultIfEmpty() // Left join for receiver info
+                                 join t in db.UsersTweets on un.TweetId equals t.TweetId into tweets
+                                 from tweet in tweets.DefaultIfEmpty() // Left join for tweet info
+                                 join tweetOwner in db.Users on tweet.UserId equals tweetOwner.UserId into tweetOwners
+                                 from owner in tweetOwners.DefaultIfEmpty() // Left join for tweet owner info
+                                 select new
                                  {
                                      NotificationId = un.NotificationId,
                                      NotificationText = un.NotificationText,
                                      NotificationTime = un.NotificationTime,
+                                     NotificationReceiverId = un.ReceiverId,
+                                     NotificationReqStatus = un.ReqStatus,
                                      NotifierUserId = u.UserId,
                                      NotifierUserName = u.UserName,
                                      NotifierFirstName = u.FirstName,
                                      NotifierProfilePic = u.ProfilePic,
-                                     TweetText = t.TweetText,
-                                     TweetImage = t.TweetImg
-                                 }).ToList();
+                                     ReceiverUserId = receiver != null ? (int?)receiver.UserId : null, // Receiver's information
+                                     ReceiverUserName = receiver != null ? receiver.UserName : null,
+                                     ReceiverFirstName = receiver != null ? receiver.FirstName : null,
+                                     ReceiverProfilePic = receiver != null ? receiver.ProfilePic : null,
+                                     TweetText = tweet != null ? tweet.TweetText : null,
+                                     TweetImage = tweet != null ? tweet.TweetImg : null,
+                                     TweetOwnerId = owner != null ? (int?)owner.UserId : null // Owner's user ID
+                                 }).OrderByDescending(n => n.NotificationTime).ToList();
+
 
             return Json(notifications, JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet]
-        [Route("searchHashtag")]
-        public ActionResult searchHashtag(string searchText)
+        [Route("SearchHashtag")]
+        public ActionResult SearchHashtag(string searchText)
         {
             //using (db)
             //{
@@ -665,10 +788,20 @@ namespace TwitterWeb.Controllers
         }
 
         [HttpGet]
-        [Route("topHashtag")]
-        public ActionResult topHashtag() 
+        [Route("TopHashtag")]
+        public ActionResult TopHashtag() 
         {
-            var result = db.Database.SqlQuery<string>("EXEC TopHashtag").ToList();
+            //var result = db.Database.SqlQuery<UsersTweet>("EXEC TopHashtag").ToList();
+            var result = db.UsersTweets
+                        .Where(t => t.TweetText.Contains("#") && t.IsDeleted == null)
+                        .Select(t => new
+                        {
+                            TweetId = t.TweetId,
+                            TweetText = t.TweetText,
+                            TweetPostedTime = t.TweetPostedTime
+                        })
+                        .ToList();
+
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 

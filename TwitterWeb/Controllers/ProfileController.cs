@@ -35,7 +35,7 @@ namespace TwitterWeb.Controllers
 
         [HttpGet]
         [Route("GetProfileData")]
-        public ActionResult GetProfileData()
+        public ActionResult GetProfileData(int? userId)
         {
             try
             {
@@ -43,17 +43,18 @@ namespace TwitterWeb.Controllers
                 {
                     return Json("Please, login again", JsonRequestBehavior.AllowGet);
                 }
-                int id = (int)Session["UserId"];
-                User userData = new User();
-                System.Net.ServicePointManager.ServerCertificateValidationCallback = (senderX, certificate, chain, sslPolicyErrors) => { return true; };
-                client.BaseAddress = new Uri("https://localhost:44364/api/ProfileApi");
-                var response = client.GetAsync("ProfileApi/" + id);
-                response.Wait();
-                var test = response.Result;
 
-                if (test.IsSuccessStatusCode)
+                int id = userId ?? (int)Session["UserId"];
+
+                User userData = new User();
+                System.Net.ServicePointManager.ServerCertificateValidationCallback = (senderX, certificate, chain, sslPolicyErrors) => true;
+                client.BaseAddress = new Uri("https://localhost:44364/api/ProfileApi");
+                var response = client.GetAsync($"ProfileApi/{id}");
+                response.Wait();
+
+                if (response.Result.IsSuccessStatusCode)
                 {
-                    var display = test.Content.ReadAsAsync<User>();
+                    var display = response.Result.Content.ReadAsAsync<User>();
                     display.Wait();
                     userData = display.Result;
                     return Json(userData, JsonRequestBehavior.AllowGet);
@@ -61,12 +62,12 @@ namespace TwitterWeb.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging purposes
                 Console.WriteLine("Exception: " + ex.Message);
                 return Json("Error occurred", JsonRequestBehavior.AllowGet);
             }
             return Json("Not Found", JsonRequestBehavior.AllowGet);
         }
+
 
         public ActionResult EditProfile()
         {
@@ -90,13 +91,14 @@ namespace TwitterWeb.Controllers
                     SqlCommand cmd = new SqlCommand("UpdateProfileData", con);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@UserId", uid);
+                    cmd.Parameters.AddWithValue("@UserName", obj.UserName);
                     cmd.Parameters.AddWithValue("@FirstName", obj.FirstName);
                     cmd.Parameters.AddWithValue("@Gender", obj.Gender);
                     cmd.Parameters.AddWithValue("@UserEmail", obj.UserEmail);
                     cmd.Parameters.AddWithValue("@DateOfBirth", obj.DateOfBirth);
                     cmd.Parameters.AddWithValue("@Country", obj.Country);
                     cmd.Parameters.AddWithValue("@Bio", obj.Bio);
-                
+
                     if (ProfilePic == null)
                     {
                         cmd.Parameters.AddWithValue("@ProfilePicPath", obj.ProfilePic);
@@ -117,16 +119,28 @@ namespace TwitterWeb.Controllers
                         cmd.Parameters.AddWithValue("@ProfileBgPicPath", profileBgPicPath);
                     }
 
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    con.Close();
-
-                    if (rowsAffected > 0)
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
                     {
-                        return Json("Profile data updated successfully", JsonRequestBehavior.AllowGet);
+                        int overallResult = reader.GetInt32(reader.GetOrdinal("OverallResult"));
+                        bool usernameUpdated = reader.GetBoolean(reader.GetOrdinal("UsernameUpdated"));
+                        bool emailUpdated = reader.GetBoolean(reader.GetOrdinal("EmailUpdated"));
+
+                        reader.Close();
+                        con.Close();
+
+                        var result = new
+                        {
+                            Message = "Profile data updated successfully",
+                            UsernameUpdated = usernameUpdated,
+                            EmailUpdated = emailUpdated
+                        };
+
+                        return Json(result, JsonRequestBehavior.AllowGet);
                     }
                     else
                     {
-                        return Json(rowsAffected, JsonRequestBehavior.AllowGet);
+                        return Json("Unexpected error occurred", JsonRequestBehavior.AllowGet);
                     }
                 }
             }
@@ -243,7 +257,7 @@ namespace TwitterWeb.Controllers
 
         [HttpPost]
         [Route("AcceptFriendReq")]
-        public ActionResult AcceptFriendReq(int senderId)
+        public ActionResult AcceptFriendReq(int SenderId)
         {
             if (Session["UserId"] == null)
             {
@@ -252,11 +266,20 @@ namespace TwitterWeb.Controllers
             try
             {
                 var ReceiverId = (int)Session["UserId"];
-                db.Database.ExecuteSqlCommand("EXEC AcceptFriendReq @SenderId, @ReceiverId",
-                                                 new SqlParameter("SenderId", senderId),
-                                                 new SqlParameter("ReceiverId", ReceiverId));
-                db.SaveChanges();
-                return Json("Request Accepted", JsonRequestBehavior.AllowGet);
+               
+                using (SqlConnection connection = new SqlConnection(conStr))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("AcceptFriendReq", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@SenderId", SenderId);
+                        command.Parameters.AddWithValue("@ReceiverId", ReceiverId);
+                        command.ExecuteNonQuery();
+                    }
+                    InsertAccepteFriendNotification(SenderId, ReceiverId);
+                    return Json("Request Accepted", JsonRequestBehavior.AllowGet);
+                }
             }
             catch
             {
@@ -265,9 +288,25 @@ namespace TwitterWeb.Controllers
             return Json("Unable to accepted request", JsonRequestBehavior.AllowGet);
         }
 
+        //Accept friend request notification
+        public void InsertAccepteFriendNotification(int SenderId, int ReceiverId)
+        {
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("AcceptFriendReqNoification", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@SenderId", SenderId);
+                    command.Parameters.AddWithValue("@ReceiverId", ReceiverId);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
         [HttpPost]
         [Route("RejectFriendReq")]
-        public ActionResult RejectFriendReq(int senderId)
+        public ActionResult RejectFriendReq(int SenderId)
         {
             if (Session["UserId"] == null)
             {
@@ -276,17 +315,41 @@ namespace TwitterWeb.Controllers
             try
             {
                 var ReceiverId = (int)Session["UserId"];
-                db.Database.ExecuteSqlCommand("EXEC RejectFriendReq @SenderId, @ReceiverId",
-                                                 new SqlParameter("SenderId", senderId),
-                                                 new SqlParameter("ReceiverId", ReceiverId));
-                db.SaveChanges();
-                return Json("Request rejected", JsonRequestBehavior.AllowGet);
+               
+                using (SqlConnection connection = new SqlConnection(conStr))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("RejectFriendReq", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@SenderId", SenderId);
+                        command.Parameters.AddWithValue("@ReceiverId", ReceiverId);
+                        command.ExecuteNonQuery();
+                    }
+                    RejectFriendNotification(SenderId, ReceiverId);
+                    return Json("Request rejected", JsonRequestBehavior.AllowGet);
+                }
             }
             catch
             {
 
             }
             return Json("Unable to rejected request", JsonRequestBehavior.AllowGet);
+        }
+        //Reject friend request notification
+        public void RejectFriendNotification(int SenderId, int ReceiverId)
+        {
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("RejectFriendReqNotification", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@SenderId", SenderId);
+                    command.Parameters.AddWithValue("@ReceiverId", ReceiverId);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public ActionResult UserFriend()
@@ -298,14 +361,14 @@ namespace TwitterWeb.Controllers
             return View();
         }
 
-        public ActionResult GetUserFriend()
+        public ActionResult GetUserFriend(int? userId)
         {
-            if (Session["UserId"] == null)
+            if (Session["UserId"] == null && userId == null)
             {
                 return RedirectToAction("Index", "Login");
             }
-
-            var receiverId = (int)Session["UserId"];
+            int receiverId = userId ?? (int)Session["UserId"];
+            //var receiverId = (int)Session["UserId"];
 
             var result = (from followUser in db.FollowUsers
                           join user in db.Users on followUser.ReceiverId equals user.UserId
@@ -337,14 +400,17 @@ namespace TwitterWeb.Controllers
                               user.UserName,
                               user.ProfilePic
                           }).ToList();
-
+            if(result.Count == 0)
+            {
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpPost]
         [Route("RemoveFriend")]
-        public ActionResult RemoveFriend(int senderId)
+        public ActionResult RemoveFriend(int senderId, int receiverId)
         {
             if (Session["UserId"] == null)
             {
@@ -352,11 +418,18 @@ namespace TwitterWeb.Controllers
             }
             try
             {
-                var ReceiverId = (int)Session["UserId"];
-                db.Database.ExecuteSqlCommand("EXEC RemoveFriend @SenderId, @ReceiverId",
-                                                 new SqlParameter("SenderId", senderId),
-                                                 new SqlParameter("ReceiverId", ReceiverId));
-                db.SaveChanges();
+                using (SqlConnection connection = new SqlConnection(conStr))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("RemoveFriend", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@SenderId", senderId);
+                        command.Parameters.AddWithValue("@ReceiverId", receiverId);
+                        command.ExecuteNonQuery();
+                    }
+                }
+                RemoveFriendNotification(senderId, receiverId);
                 return Json("Request rejected", JsonRequestBehavior.AllowGet);
             }
             catch
@@ -364,6 +437,55 @@ namespace TwitterWeb.Controllers
 
             }
             return Json("removed ");
+        }
+
+        public void RemoveFriendNotification(int senderId, int receiverId)
+        {
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("RemoveFriendNotification", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@SenderId", senderId);
+                    command.Parameters.AddWithValue("@ReceiverId", receiverId);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+        [HttpPost]
+        [Route("ProfileChangePassword")]
+        public ActionResult ProfileChangePassword(string oldPassword, string newPassword)
+        {
+            var UserId = (int)Session["UserId"];
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("ChangePassword", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", UserId);
+                    command.Parameters.AddWithValue("@NewPassword", newPassword);
+                    command.Parameters.AddWithValue("@OldPassword", oldPassword);
+
+                    var result = command.ExecuteScalar();
+                    if (result != null && Convert.ToInt32(result) == 1)
+                    {
+                        return Json(new { success = true });
+                    }
+                    else if(Convert.ToInt32(result) == 2 )
+                    {
+                        return Json(2,JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "New password must be different from the last 3 old passwords." });
+                    }
+                }
+            }
+            //return Json("Password Updated", JsonRequestBehavior.AllowGet);
         }
     }
 }

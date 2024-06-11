@@ -1,7 +1,7 @@
 const deleteBtn = document.getElementById("delete-banner");
 const banner = document.getElementById("banner");
-const uploadBannerBtn = document.getElementById("upload-banner");
-const uploadProfilePhoto = document.getElementById("upload-photo");
+const uploadBannerBtn = document.getElementById("fileUploadBanner");
+const uploadProfilePhoto = document.getElementById("fileUploadPhoto");
 
 deleteBtn.addEventListener("click", (e) => {
   e.preventDefault();

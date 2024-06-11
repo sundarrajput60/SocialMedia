@@ -5,10 +5,10 @@ $(document).ready(function () {
     $('#divMainContentBody').ready(function () {
 
         getNavbarUserData();
-        var hashtagName = localStorage.getItem('hashtagName');
-        if (hashtagName != null) {
+        var HashtagName = localStorage.getItem('HashtagName');
+        if (HashtagName != null) {
 
-            appendTweetByHashtag(hashtagName);
+            appendTweetByHashtag(HashtagName);
             localStorage.clear();
         }
         else {
@@ -16,9 +16,9 @@ $(document).ready(function () {
             getAllTweets();
         }
 
-        topHashtag();
-        getUserProfileData();
-        userFriends();
+        TopHashtag();
+        GetUserProfileData();
+        UserFriends();
     });
 
     function getAllTweets() {
@@ -26,9 +26,6 @@ $(document).ready(function () {
         $.ajax({
             url: '/Homepage/GetAllTweets',
             type: 'GET',
-            beforeSend: function () {
-                showLoader();
-            },
             success: function (response) {
                 var loggedInUserId = response.loggedInUserId.userId;
                 currentUser = response.loggedInUserId.userId;
@@ -51,38 +48,31 @@ $(document).ready(function () {
                         });
                     }
                 });
-
-                if (response.Tweets == "") {
-                    $('#divUserTweet').append('<div class="text-center mt-20 mb-20 pt-20 pb-20 dark:text-white dark:bg-black-0">No tweets found! Make friends to see thier tweets.</div>');
-                }
-            },
-            complete: function () {
-                hideLoader();
             },
             error: function () {
                 // Handle error
-
             }
         });
     }
 
+
     function getNavbarUserData() {
 
+
         $.ajax({
-            url: '/Homepage/GetNavbarUserData',
+            url: '/Homepage/getNavbarUserData',
             type: 'GET',
             data: { userId: currentUser },
             success: function (response) {
 
-                $('#navBarName').html(response.FirstName);
-                $('#navBarUserName').html('@' + response.UserName);
-                $('#navBarNameProfile').attr("src", response.ProfilePic);
+                $('#NavBarName').html(response.FirstName);
+                $('#NavBarNameProfile').attr("src", response.ProfilePic);
             }
         });
     }
 
     //COMMENT ON TWEET 
-    $('#divUserTweet').ready(function () {
+    $(document).ready(function () {
         // Open the modal
         function openModal() {
             $('#spnCommentModal').html('');
@@ -99,6 +89,7 @@ $(document).ready(function () {
 
         // Event listener to close the modal when the close buttons are clicked
         $('.closeModalBtn').on('click', closeModal);
+        $('#closeModalBtn').on('click', closeModal);
 
         // COMMENT TWEET
         $(document).on('click', '.comment-btn', function () {
@@ -160,55 +151,36 @@ $(document).ready(function () {
         commentCountElem.data('comment-count', newCount);
     }
 
-    // DELETE COMMENT BUTTON
+    // DELETE COMMENT
     $(document).on('click', '.delete-comment-btn', function () {
         var commentId = $(this).data('comment-id'); // Retrieve comment ID from the data attribute
         var commentElement = $(this).closest('.comments');
         var repliesContainer = $('#replies-' + commentId);
 
-        Swal.fire({
-            title: "Are you sure? You want to delete this comment!",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Send AJAX request to delete the comment
-                $.ajax({
-                    url: '/Homepage/DeleteComment',
-                    type: 'GET',
-                    data: { commentId: commentId },
-                    success: function (response) {
-                        if (response.success) {
-                            // Upon successful deletion, remove the comment element and related replies from the DOM
-                            commentElement.remove();
-                            repliesContainer.remove();
+        // Send AJAX request to delete the comment
+        $.ajax({
+            url: '/Homepage/DeleteComment',
+            type: 'GET',
+            data: { commentId: commentId },
+            success: function (response) {
+                if (response.success) {
+                    // Upon successful deletion, remove the comment element and related replies from the DOM
+                    commentElement.remove();
+                    repliesContainer.remove();
 
-                            // Update the comment count
-                            updateCommentCount(response.tweetId, response.commentCount);
-                        } else {
-                            console.error(response.message);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Your comment has been deleted.",
-                    icon: "success"
-                });
-
+                    // Update the comment count
+                    updateCommentCount(response.tweetId, response.commentCount);
+                } else {
+                    console.error(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
             }
         });
-
     });
 
-    // TWEET LIKE BUTTON
+    //LIKE BUTTON
     $(document).on('click', '.like-btn', function () {
         var tweetId = $(this).data('tweet-id');
         var loggedInUserId = currentUser;
@@ -251,58 +223,32 @@ $(document).ready(function () {
         var tweetComment = $(tweetElement).next();
         var tweetCommentReply = $(tweetComment).children();
 
-        Swal.fire({
-            title: "Are you sure? You want to delete this tweet!",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Send AJAX request to delete the tweet
-                $.ajax({
-                    url: '/Homepage/DeleteTweet',
-                    type: 'GET',
-                    data: { tweetId: tweetId },
-                    success: function (response) {
-                        // Upon successful deletion, remove the tweet element from the DOM
-                        tweetElement.remove();
-                        tweetComment.remove();
-                        tweetCommentReply.remove();
-                        $('#divTopHashtag').empty();
-                        topHashtag();
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Your tweet has been deleted.",
-                    icon: "success"
-                });
+        // Send AJAX request to delete the tweet
+        $.ajax({
+            url: '/Homepage/DeleteTweet',
+            type: 'GET',
+            data: { tweetId: tweetId },
+            success: function (response) {
+                // Upon successful deletion, remove the tweet element from the DOM
+                tweetElement.remove();
+                tweetComment.remove();
+                tweetCommentReply.remove();
+                $('#divTopHashtag').empty();
+                TopHashtag();
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
             }
         });
     });
 
     //lOGIN
     $('#btnLogin').click(function () {
+
         var LoginObj = {
             UserName: $('#txtUserName').val(),
             UserPassword: $('#txtPassword').val()
         };
-
-        Swal.fire({
-            title: "Logging in...",
-            html: "Please wait, this will close automatically once done.",
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
 
         $.ajax({
             url: '/api/LoginApi/CheckUser',
@@ -311,35 +257,18 @@ $(document).ready(function () {
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             success: function (res) {
-                Swal.close();
-                $('#spnErrorMsg').html("");
 
-                if (res.IsVerified == 2) {
-                    UserId = res.UserId;
-
-                    window.location.href = "/SignUp/NewUserVerification?id=" + UserId;
-                } else if (res.IsVerified == 3) {
-                    $('#spnErrorMsg').html("Incorrect username or password");
-                } else if (res.IsVerified == 1) {
-                    Swal.fire({
-                        title: "Login successful",
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        var id = res.UserId;
-                        clearLoginForm();
-                        window.location.href = "/Homepage/GetUser?id=" + id;
-                    });
-                }
+                var id = res;
+                ClearForm();
+                window.location.href = "/Homepage/GetUser?id=" + id;
             },
             error: function (error) {
-                Swal.close();
-                $('#spnErrorMsg').html("Unable to process your request. Please try again later.");
+                if (error.status === 400) {
+                    $('#spnErrorMsg').html("Invalid username or password");
+                }
             }
         });
     });
-
 
     //GET PROFILE
     $('#navBtnUserProfile').click(function (e) {
@@ -347,10 +276,10 @@ $(document).ready(function () {
         localStorage.clear();
         e.preventDefault();
         window.location.href = '/Profile/UserProfile';
-        getUserProfileData();
+        GetUserProfileData();
     });
 
-    function getUserProfileData() {
+    function GetUserProfileData() {
 
         var userId = 0;
         userId = parseInt(localStorage.getItem('otherUserProfileId'));
@@ -403,14 +332,14 @@ $(document).ready(function () {
 
                             tweets.forEach(function (tweet) {
                                 appendTweetToPage(tweet, loggedInUserId, 'divUserProfileTweet');
-                                //tweet.Comments.forEach(function (comment) {
-                                //    prependComment(comment, tweet.TweetId, tweet);
-                                //    if (comment.Replies && comment.Replies.length > 0) {
-                                //        comment.Replies.forEach(function (reply) {
-                                //            prependReply(reply, comment.CommentId, tweet.TweetId, tweet);
-                                //        });
-                                //    }
-                                //});
+                                tweet.Comments.forEach(function (comment) {
+                                    prependComment(comment, tweet.TweetId, tweet);
+                                    if (comment.Replies && comment.Replies.length > 0) {
+                                        comment.Replies.forEach(function (reply) {
+                                            prependReply(reply, comment.CommentId, tweet.TweetId, tweet);
+                                        });
+                                    }
+                                });
                             });
 
                         },
@@ -427,6 +356,7 @@ $(document).ready(function () {
         });
 
     }
+
 
     //GET EDIT PROFILE DATA
     $('#btnEditProfile').click(function (e) {
@@ -462,23 +392,12 @@ $(document).ready(function () {
 
                 $('#txtUserName').val(response.UserName);
                 $('#txtEmail').val(response.UserEmail);
+                $('#txtCountry').val(response.Country);
                 $('#txtBio').val(response.Bio);
                 $('#imgEditUserProfilePic').attr("src", response.ProfilePic);
                 $('#imgEditUserProfileBgPic').attr("src", response.ProfileBgPic);
                 $('#txtProfilePicPath').val(response.ProfilePic);
                 $('#txtProfileBgPicPath').val(response.ProfileBgPic);
-
-                var countries = ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "India", "Japan", "Brazil"];
-
-                var $selectCountry = $("#selectCountry");
-
-                countries.forEach(function (country) {
-                    $selectCountry.append($('<option>', {
-                        value: country,
-                        text: country
-                    }));
-                });
-                $('#selectCountry').val(response.Country);
             },
             complete: function () {
                 hideLoader();
@@ -528,11 +447,11 @@ $(document).ready(function () {
             url: '/Login/Logout',
             type: 'POST',
             success: function (response) {
-
+                // Handle success, like redirecting the user to the login page
                 window.location.href = "/Login/Index";
             },
             error: function (xhr, status, error) {
-
+                // Handle error
             }
         });
     });
@@ -541,28 +460,18 @@ $(document).ready(function () {
     $('#navBtnAllUsers').click(function (e) {
 
         e.preventDefault();
-
         window.location.href = "/Homepage/AllUsers";
     });
     $('#divAllFriends').ready(function () {
-
         $.ajax({
 
             url: '/Homepage/getAllUsers',
             type: 'GET',
-            beforeSend: function () {
-                showLoader();
-            },
             success: function (response) {
 
                 response.forEach(function (user) {
                     appendUserList(user);
-
                 });
-
-            },
-            complete: function () {
-                hideLoader();
             },
             error: function (err) {
 
@@ -603,13 +512,14 @@ $(document).ready(function () {
         $('#divAllFriends').prepend(appendUserHtml);
     }
 
+
     // SEE FRIEND PROFILES
     $(document).on('click', '.get-other-user-profile', function () {
 
         var otherUserProfileId = $(this).data('user-id');
         localStorage.setItem('otherUserProfileId', otherUserProfileId);
         window.location.href = '/Profile/UserProfile';
-        getUserProfileData();
+        GetUserProfileData();
     });
 
     // Event delegation for dynamically added elements
@@ -739,7 +649,7 @@ $(document).ready(function () {
                 url: '/Profile/AcceptFriendReq',
                 type: 'POST',
                 data: {
-                    SenderId: senderId
+                    senderId: senderId
                 },
                 success: function (response) {
                     Swal.fire({
@@ -777,7 +687,7 @@ $(document).ready(function () {
                         url: '/Profile/RejectFriendReq',
                         type: 'POST',
                         data: {
-                            SenderId: senderId
+                            senderId: senderId
                         },
                         success: function (response) {
                             buttonElement.closest('.border-b').remove();
@@ -798,10 +708,10 @@ $(document).ready(function () {
 
         //e.preventDefault();
         window.location.href = "/Profile/UserFriend";
-        userFriends();
+        UserFriends();
     });
 
-    function userFriends() {
+    function UserFriends() {
 
         $('#divFriend').ready(function () {
 
@@ -832,6 +742,7 @@ $(document).ready(function () {
             });
         });
     }
+
 
     // APPENDING THE FREIND TO THE USER FRIENDS
     function appendUserFriend(friend) {
@@ -931,15 +842,15 @@ $(document).ready(function () {
         window.location.href = "/Homepage/Notification";
     });
 
-    // GET ALL NOTIFICATION
-    $('#divMainContent').ready(function () {
+    // GET ALL NOTIFICATION 
+    $(document).ready(function () {
         $.ajax({
             url: '/Homepage/GetAllNotification',
             type: 'GET',
             success: function (response) {
 
                 response.reverse().forEach(function (notification) {
-
+                    //if (notification.NotificationReceiverId === null || notification.NotificationReceiverId === currentUser) {
                     if (notification.NotificationText === 'liked your tweet') {
                         appendLikeNotification(notification);
                     } else if (notification.NotificationText === 'Commented on your tweet') {
@@ -947,21 +858,21 @@ $(document).ready(function () {
                     } else if (notification.NotificationText === 'Send you friend request' || notification.NotificationReqStatus === 'accepted' || notification.NotificationReqStatus === 'rejected') {
                         appendFollowNotification(notification);
                     }
-
+                    //}
                 });
             },
             error: function (error) {
                 console.log(error);
             }
         });
+    });
 
+    // Function to append follow notifications
+    function appendFollowNotification(notification) {
+        var notificationTime = formatTweetDate(notification.NotificationTime);
 
-        // Function to append follow notifications
-        function appendFollowNotification(notification) {
-            var notificationTime = formatTweetDate(notification.NotificationTime);
-
-            if (currentUser == notification.NotificationReceiverId && notification.NotificationReqStatus == 'pending') {
-                const followNotificationHTML = `
+        if (currentUser == notification.NotificationReceiverId && notification.NotificationReqStatus == 'pending') {
+            const followNotificationHTML = `
         <div class="flex gap-2 px-3 py-4 border-b cursor-pointer sm:px-6 sm:gap-5 dark:hover:bg-black-6 border-gray-9 dark:border-black-5 hover:bg-gray-7">
             <!-- EMOJI IDENTIFIER -->
             <figure class="flex items-start justify-end pl-4">
@@ -993,19 +904,19 @@ $(document).ready(function () {
                 </h2>
             </article>
         </div>`;
-                $('#divAllNotification').prepend(followNotificationHTML);
+            $('#divAllNotification').prepend(followNotificationHTML);
+        }
+
+        if (currentUser == notification.NotifierUserId && (notification.NotificationReqStatus == 'accepted' || notification.NotificationReqStatus == 'rejected')) {
+
+            let messageText = '';
+            if (notification.NotificationReqStatus === 'accepted') {
+                messageText = 'accepted your friend request';
+            } else {
+                messageText = 'rejected your friend request';
             }
 
-            if (currentUser == notification.NotifierUserId && (notification.NotificationReqStatus == 'accepted' || notification.NotificationReqStatus == 'rejected')) {
-
-                let messageText = '';
-                if (notification.NotificationReqStatus === 'accepted') {
-                    messageText = 'accepted your friend request';
-                } else {
-                    messageText = 'rejected your friend request';
-                }
-
-                const followNotificationHTML = `
+            const followNotificationHTML = `
         <div class="flex gap-2 px-3 py-4 border-b cursor-pointer sm:px-6 sm:gap-5 dark:hover:bg-black-6 border-gray-9 dark:border-black-5 hover:bg-gray-7">
             <!-- EMOJI IDENTIFIER -->
             <figure class="flex items-start justify-end pl-4">
@@ -1037,21 +948,21 @@ $(document).ready(function () {
                 </h2>
             </article>
         </div>`;
-                $('#divAllNotification').prepend(followNotificationHTML);
-            }
-
+            $('#divAllNotification').prepend(followNotificationHTML);
         }
 
-        // LIKE NOTIFICATION HTML
-        function appendLikeNotification(notification) {
+    }
 
-            var notificationTime = formatTweetDate(notification.NotificationTime);
-            var notificationTweetImgHtml = appendUserTweetImageOnNotification(notification);
-            var NotificationHtml = '';
-            if (currentUser == notification.TweetOwnerId || notification.text == 'liked your tweet') {
+    // LIKE NOTIFICATION HTML
+    function appendLikeNotification(notification) {
+
+        var notificationTime = formatTweetDate(notification.NotificationTime);
+        var notificationTweetImgHtml = appendUserTweetImageOnNotification(notification);
+        var NotificationHtml = '';
+        if (currentUser == notification.TweetOwnerId || notification.text == 'liked your tweet') {
 
 
-                NotificationHtml = `
+            NotificationHtml = `
         <div class="flex gap-2 px-3 py-4 border-b cursor-pointer sm:px-6 sm:gap-5 dark:hover:bg-black-6 border-gray-9 dark:border-black-5 hover:bg-gray-7">
             <!-- EMOJI IDENTIFIER -->
             <figure class="flex items-start justify-end pl-4">
@@ -1095,34 +1006,34 @@ $(document).ready(function () {
             </article>
         </div>
     `;
-            }
-            $('#divAllNotification').prepend(NotificationHtml);
         }
+        $('#divAllNotification').prepend(NotificationHtml);
+    }
 
-        //APPEND IMAGE TO THE NOTIFICATION
-        function appendUserTweetImageOnNotification(notification) {
+    //APPEND IMAGE TO THE NOTIFICATION
+    function appendUserTweetImageOnNotification(notification) {
 
-            if (notification.TweetImage !== null && notification.TweetImage !== '') {
-                return `
+        if (notification.TweetImage !== null && notification.TweetImage !== '') {
+            return `
             <div class="max-h-[100px] max-w-[100px] border bg-gray-4 dark:bg-twitter-dark-gray border-gray-4 rounded-xl overflow-hidden">
                 <figure>
                     <img role="button" class="object-cover w-full h-full" src="${notification.TweetImage}" />
                 </figure>
             </div>`;
-            }
-            else {
-                return ``;
-            }
         }
+        else {
+            return ``;
+        }
+    }
 
-        // COMMENT NOTIFICATION HTML
-        function appendCommentNotification(notification) {
+    // COMMENT NOTIFICATION HTML
+    function appendCommentNotification(notification) {
 
-            var notificationTime = formatTweetDate(notification.NotificationTime);
-            var notificationTweetImgHtml = appendUserTweetImageOnNotification(notification);
+        var notificationTime = formatTweetDate(notification.NotificationTime);
+        var notificationTweetImgHtml = appendUserTweetImageOnNotification(notification);
 
-            if (currentUser == notification.TweetOwnerId || notification.text == 'Commented on your tweet') {
-                var commentNotificationHtml = `
+        if (currentUser == notification.TweetOwnerId || notification.text == 'Commented on your tweet') {
+            var commentNotificationHtml = `
                 <div class="flex gap-2 px-3 py-4 border-b cursor-pointer sm:px-6 sm:gap-5 dark:hover:bg-black-6 border-gray-9 dark:border-black-5 hover:bg-gray-7">
                     <!-- EMOJI IDENTIFIER -->
                         <figure class="flex items-start justify-end pl-4">
@@ -1164,81 +1075,86 @@ $(document).ready(function () {
                         </section>
                     </article>
                 </div>`;
-            }
-            $('#divAllNotification').prepend(commentNotificationHtml);
         }
-    });
+        $('#divAllNotification').prepend(commentNotificationHtml);
+    }
 
     // SEARCH HASHTAG
     $('#divMainContentBody').ready(function () {
-        $(document).on('keyup', '#searchBar', function () {
-            var searchText = $('#searchBar').val().trim();
 
-            $.ajax({
-                url: '/Homepage/SearchHashtag',
-                type: 'GET',
-                data: { searchText: searchText },
-                success: function (response) {
+        //Searchbar for searching hashtag
+        $(document).ready(function () {
+            $(document).on('keyup', '#searchBar', function () {
+                var searchText = $('#searchBar').val().trim();
 
-                    $('#divUserTweet').empty();
+                $.ajax({
+                    url: '/Homepage/searchHashtag',
+                    type: 'GET',
+                    data: { searchText: searchText },
+                    success: function (response) {
 
-                    if (response && response.Tweets && Array.isArray(response.Tweets)) {
+                        $('#divUserTweet').empty();
 
-                        var hashtag = [];
-                        response.Tweets.forEach(function (tweet) {
-                            //console.log(tweet);
-                            var SplitWords = tweet.TweetText.split(' ');
-                            SplitWords.forEach(function (words) {
-                                if (words.startsWith('#') && words.length > 1) {
-                                    hashtag.push(words);
+                        if (response && response.Tweets && Array.isArray(response.Tweets)) {
+
+                            var hashtag = [];
+                            response.Tweets.forEach(function (tweet) {
+                                //console.log(tweet);
+                                var SplitWords = tweet.TweetText.split(' ');
+                                SplitWords.forEach(function (words) {
+                                    if (words.startsWith('#') && words.length > 1) {
+                                        hashtag.push(words);
+                                    }
+                                });
+
+                            });
+
+                            $('#suggestions').empty();
+
+                            hashtag.forEach(function (hashtag) {
+
+                                if (searchText.length != 0) {
+                                    var suggestionItem = $('<div>')
+                                        .addClass('suggestion-item p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer')
+                                        .text(hashtag)
+                                        .on('click', function () {
+                                            $('#searchBar').val(hashtag);
+                                            $('#suggestions').empty();
+
+                                            $('#searchBar').trigger('keyup');
+                                        });
+                                    $('#suggestions').prepend(suggestionItem);
                                 }
                             });
 
-                        });
 
-                        $('#suggestions').empty();
-
-                        hashtag.forEach(function (hashtag) {
-
-                            if (searchText.length != 0) {
-                                var suggestionItem = $('<div>')
-                                    .addClass('suggestion-item p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer')
-                                    .text(hashtag)
-                                    .on('click', function () {
-                                        $('#searchBar').val(hashtag);
-                                        $('#suggestions').empty();
-
-                                        $('#searchBar').trigger('keyup');
-                                    });
-                                $('#suggestions').prepend(suggestionItem);
-                            }
-                        });
-
-
-                        response.Tweets.forEach(function (tweet) {
-                            appendTweetToPage(tweet, currentUser, 'divUserTweet');
-                        });
-                    } else {
-                        console.error("Invalid response format");
+                            response.Tweets.forEach(function (tweet) {
+                                appendTweetToPage(tweet, currentUser, 'divUserTweet');
+                            });
+                        } else {
+                            console.error("Invalid response format");
+                        }
+                    },
+                    error: function (error) {
+                        // Handle error
+                        console.error("Error fetching tweets:", error);
                     }
-                },
-                error: function (error) {
-                    // Handle error
-                    console.error("Error fetching tweets:", error);
-                }
+                });
             });
         });
+
     });
 
+
     // Function to fetch the top hashtags and display them
-    function topHashtag() {
+    function TopHashtag() {
         $.ajax({
             url: '/Homepage/TopHashtag',
             type: 'GET',
             success: function (response) {
                 var hashtagCounts = {};
                 var hashtagDates = {};
-                var topHashtagArray = [];
+                var TopHashtagArray = [];
 
                 // Filter hashtags from the response and store their dates
                 response.forEach(function (tweet) {
@@ -1246,13 +1162,13 @@ $(document).ready(function () {
                     var date = new Date(parseInt(tweet.TweetPostedTime.substr(6)));
                     totalWords.forEach(function (word) {
                         if (word.startsWith("#")) {
-                            topHashtagArray.push({ hashtag: word, date: date });
+                            TopHashtagArray.push({ hashtag: word, date: date });
                         }
                     });
                 });
 
                 // Count occurrences of each hashtag and keep track of the most recent date
-                topHashtagArray.forEach(function (item) {
+                TopHashtagArray.forEach(function (item) {
                     var hashtag = item.hashtag;
                     var date = item.date;
                     if (hashtagCounts[hashtag]) {
@@ -1318,26 +1234,26 @@ $(document).ready(function () {
 
         HomepageUrl = 'https://localhost:44364/Homepage';
 
-        const hashtagName = $(this).data('hashtag-name');
+        const HashtagName = $(this).data('hashtag-name');
         const url = getCurrentURL();
         if (url != HomepageUrl) {
 
             e.preventDefault();
             window.location.href = '/Homepage';
-            localStorage.setItem('hashtagName', hashtagName);
+            localStorage.setItem('HashtagName', HashtagName);
         }
-        appendTweetByHashtag(hashtagName);
+        appendTweetByHashtag(HashtagName);
 
     });
 
     //APPEND HASH TAG TWEET BY HASHTAG NAME FUNCTION
-    function appendTweetByHashtag(hashtagName) {
+    function appendTweetByHashtag(HashtagName) {
         $(document).ready(function () {
             $.ajax({
 
                 url: '/Homepage/GetTweetByHashtagName',
                 type: 'GET',
-                data: { hashtagName: hashtagName },
+                data: { hashtagName: HashtagName },
                 success: function (response) {
 
 
@@ -1385,349 +1301,7 @@ $(document).ready(function () {
         $('#txtProfilePicPath').val('/Images/DefaultProfile.png');
     });
 
-    // SEND RESET PASSWORD LINK TO THE MAIL
-    $('#btnSendMail').click(function (e) {
-        e.preventDefault();
-
-        var success = 1;
-        const emailPattern = /[a-zA-Z0-9_\-\.]+@[a-z]+\.[a-z]{2,3}/;
-        var email = $('#txtForgotPasswordEmail').val().trim();
-
-        if (email === '') {
-            $('#divForegetPassErrorMessage').text("Email can't be empty!");
-            success = 0;
-        } else if (!email.match(emailPattern)) {
-            $('#divForegetPassErrorMessage').text("Enter valid email");
-            success = 0;
-        } else {
-            $('#divForegetPassErrorMessage').text("");
-            success = 1;
-        }
-
-        if (success == 1) {
-
-            Swal.fire({
-                title: "Sending Reset Password Link...",
-                html: "Please wait, we are sending you reset password link to you mail.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // AJAX call to send reset password link
-            $.ajax({
-                url: '/Login/EmailForForgotPassword',
-                type: 'POST',
-                data: { email: email },
-                success: function (response) {
-
-                    Swal.close();
-                    $('#divForegetPassErrorMessage').text("");
-                    if (response === 0) {
-                        $('#divForegetPassErrorMessage').text("Email not found");
-                    } else {
-                        Swal.fire({
-                            position: "center",
-                            icon: "success",
-                            title: "Reset password link sent to your email.",
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                        window.Location.href = '/Login/Index';
-                    }
-                },
-                error: function (error) {
-
-                    Swal.close();
-                    $('#divForegetPassErrorMessage').text("Unable to process your request. Please try again later.");
-                }
-            });
-        }
-    });
-
-    // VALIDATE RESET PASSWORD TOKEN
-    $('#divResetPassword').ready(function () {
-
-        $('#divResetPassword').hide();
-        $('#divInvalidToken').hide();
-
-        const searchParams = new URLSearchParams(window.location.search);
-        var token = searchParams.get('token');
-
-        if (token != undefined) {
-
-            var finalToken = token.replaceAll(" ", "+");
-
-
-            $.ajax({
-                url: '/Login/ValidateToken',
-                type: 'POST',
-                data: { token: finalToken },
-                success: function (response) {
-
-                    if (response === 0) {
-
-                        $('#divInvalidToken').show();
-                    }
-                    else {
-                        $('#divResetPassword').show();
-                    }
-                },
-                error: function (error) {
-                }
-            });
-        }
-        else {
-            $('#divInvalidToken').show();
-        }
-
-    });
-
-    // RESET PASSWORD
-    $('#btnReset').click(function (e) {
-        e.preventDefault();
-
-        var sucessResetPassword = 1;
-        var newPassword = $('#txtNewPassword').val().trim();
-        var repeatNewPassword = $('#txtRepeatNewPassword').val();
-
-        // Validate Password
-        if (newPassword === '' || repeatNewPassword === '') {
-            $('#divResetPasswordErrorMessage').text("New password or repeat new password can't be empty");
-            sucessResetPassword = 0;
-        } else if (newPassword !== repeatNewPassword) {
-            $('#divResetPasswordErrorMessage').text("Passwords do not match!");
-            sucessResetPassword = 0;
-        }
-        else if (newPassword.length < 8 || newPassword.length > 12) {
-            $('#divResetPasswordErrorMessage').text("Password must be 8 to 12 characters long");
-            sucessResetPassword = 0;
-
-        } else {
-            $('#spn-error-msg-password').html("");
-            sucessResetPassword = 1;
-        }
-
-        const searchParams = new URLSearchParams(window.location.search);
-        var token = searchParams.get('token');
-        var finalToken = token.replace(" ", "+");
-
-        if (sucessResetPassword == 1) {
-            $.ajax({
-                url: '/Login/ResetPassword',
-                type: 'POST',
-                data: {
-                    token: finalToken,
-                    newPassword: newPassword
-                },
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            position: "center",
-                            icon: "success",
-                            title: "Reset password successful",
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                        window.location.href = '/Login/Index';
-                    } else {
-                        $('#divResetPasswordErrorMessage').text(response.message);
-                    }
-                },
-                error: function (error) {
-                    console.error("Error:", error);
-                    $('#divResetPasswordErrorMessage').text("An error occurred while resetting the password.");
-                }
-            });
-        }
-    });
-
-    // VERFYING NEW USER
-    $('#btnVerify').click(function (e) {
-        e.preventDefault();
-        const searchParams = new URLSearchParams(window.location.search);
-        const userId = searchParams.get('id');
-        const otpNumber = $('#numOtp').val().trim();
-        //$('#divResendOtp').addClass('hidden').removeClass('visible');
-
-        $('#divOtpMsg').html("");
-
-        if (otpNumber == null || otpNumber == "") {
-            $('#divOtpMsg').html("OTP can't be empty!");
-            return;
-        } else if (otpNumber.length < 4) {
-            $('#divOtpMsg').html("OTP must be 4 digit");
-            return;
-        }
-
-
-        Swal.fire({
-            title: "Verifying OTP...",
-            html: "Please wait, this will close automatically once done.",
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        // AJAX call to verify OTP
-        $.ajax({
-            url: '/api/SignUpApi/VerifyOtp',
-            type: 'POST',
-            data: JSON.stringify({ otpNumber: otpNumber, userId: userId }),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (res) {
-
-                Swal.close();
-                if (res == 1) {
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "Signup successful",
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        window.location.href = "/Homepage/GetUser?id=" + userId;
-                    });
-                } else if (res == 0) {
-                    $('#divOtpMsg').html("OTP is expired!");
-                    //$('#divResendOtp').addClass('visible').removeClass('hidden');
-                } else {
-                    $('#divOtpMsg').html("Invalid OTP. Please try again.");
-                }
-            },
-            error: function (err) {
-
-                Swal.close();
-                $('#divOtpMsg').html("Unable to process your request. Please try again later.");
-            }
-        });
-    });
-
-    //RESEND OTP
-    $('#spnResendOtp').click(function (e) {
-        e.preventDefault();
-        const searchParams = new URLSearchParams(window.location.search);
-        const userId = parseInt(searchParams.get('id'));
-
-        Swal.fire({
-            title: "Resending OTP...",
-            html: "Please wait, we are resending OTP to your email.",
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        // AJAX call to resend OTP
-        $.ajax({
-            url: '/api/SignUpApi/ResendOtp',
-            type: 'GET',
-            data: { userId: userId },
-            success: function (res) {
-
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "OTP resend successfully, please check you email.",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                $('#divOtpMsg').html("");
-            },
-            error: function (err) {
-
-                Swal.fire({
-                    position: "center",
-                    icon: "error",
-                    title: "Failed to resend OTP",
-                    text: "Please try again later.",
-                    showConfirmButton: true
-                });
-            }
-        });
-    });
-
-    $('#linkChangePassword').click(function (e) {
-
-        e.preventDefault();
-        $("#divUserEditProfile").addClass('hidden').removeClass('visible');
-        $("#divChangePassword").addClass('visible').removeClass('hidden');
-
-    });
-
-    
-    $('#btnChgPassword').click(function (e) {
-
-        e.preventDefault();
-
-        var successChgPassword = 1;
-        var oldPassword = $('#txtOldPasswordProfile').val().trim();
-        var newPassword = $('#txtNewPasswordProfile').val().trim();
-        var repeatNewPassword = $('#txtRepeatNewPasswordProfile').val().trim();
-
-        // Validate Password
-        if (newPassword === '' || repeatNewPassword === '' || oldPassword == '') {
-            $('#divMsgChangePassword').text("Password can't be empty");
-            successChgPassword = 0;
-        } else if (newPassword !== repeatNewPassword) {
-            $('#divMsgChangePassword').text("Passwords do not match!");
-            successChgPassword = 0;
-        }
-        else if (newPassword.length < 8 || newPassword.length > 12) {
-            $('#divMsgChangePassword').text("Password must be 8 to 12 characters long");
-            successChgPassword = 0;
-
-        } else {
-            $('#divMsgChangePassword').html("");
-            successChgPassword = 1;
-        }
-
-      
-        if (successChgPassword == 1) {
-            $.ajax({
-                url: '/Profile/ProfileChangePassword',
-                type: 'POST',
-                dataType: 'json',
-                data: JSON.stringify({
-                    oldPassword: oldPassword,
-                    newPassword: newPassword
-                }),
-                contentType: 'application/json; charset=utf-8',
-                
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            position: "center",
-                            icon: "success",
-                            title: "Change password successful",
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            window.location.href = '/Profile/EditProfile';
-                        });
-                    } else {
-                        $('#divMsgChangePassword').text(response.message);
-                    }
-
-                    if (response == 2) {
-                        $('#divMsgChangePassword').text("Incorrect old password");
-                    }
-                },
-                error: function (error) {
-                    console.error("Error:", error);
-                    $('#divMsgChangePassword').text("An error occurred while resetting the password.");
-                }
-            });
-        }
-
-    });
-
-
 }); //END OF DOCUMENT READY
-
 
 function getCurrentURL() {
     return window.location.href
@@ -1765,49 +1339,7 @@ function formatTweetDate(tweetPostedTime) {
     return formattedDate;
 }
 
-function clearPreview() {
-    const previewContainer = $('#filePreviewContainer');
-    const imgPreview = $('#imgTweetPreview');
-    const videoPreview = $('#videoTweetPreview');
-    const fileInput = $('#fileUploadTweetImg');
-   
-    fileInput.val('');
-
-    previewContainer.addClass('hidden');
-    imgPreview.addClass('hidden');
-    videoPreview.addClass('hidden');
-
-    imgPreview.attr('src', '');
-    videoPreview.attr('src', '');
-}
-
-$('#fileUploadTweetImg').on('change', function (event) {
-    const file = event.target.files[0];
-    const previewContainer = $('#filePreviewContainer');
-    const imgPreview = $('#imgTweetPreview');
-    const videoPreview = $('#videoTweetPreview');
-
-    if (file) {
-        const fileURL = URL.createObjectURL(file);
-        previewContainer.removeClass('hidden');
-
-        if (file.type.startsWith('image/')) {
-            imgPreview.attr('src', fileURL).removeClass('hidden');
-            videoPreview.addClass('hidden');
-        } else if (file.type.startsWith('video/')) {
-            videoPreview.attr('src', fileURL).removeClass('hidden');
-            imgPreview.addClass('hidden');
-        }
-    }
-});
-
-$('#deleteTweetImgVid').on('click', function (event) {
-    event.preventDefault();
-    clearPreview();
-});
-
-
-function clearLoginForm() {
+function ClearForm() {
 
     $('#txtUserName').val('');
     $('#txtPassword').val('');
@@ -1827,37 +1359,16 @@ function hideLoader() {
 
 function appendTweetToPage(tweet, loggedInUserId, targetElementId) {
     var formattedDate = formatTweetDate(tweet.TweetPostedTime);
-   
     var tweetImgHtml = '';
-    var tweetVidHtml = '';
     if (tweet.TweetImg !== null && tweet.TweetImg !== '') {
-       
-
-        var tweetVid = tweet.TweetImg.split('.');
-        if (tweetVid.includes('mp4') || tweetVid.includes('mov')) {
-
-            tweetVidHtml =
-                `<div class="max-h-[500px] border bg-gray-4 dark:bg-twitter-dark-gray border-gray-4 rounded-xl overflow-hidden">
-                <figure>
-                    <video class="object-cover w-full h-full" autoplay loop muted>
-                         <source src="${tweet.TweetImg}" type="video/mp4">
-                    </video>
-                </figure>
-            </div>`;
-        }
-        else {
-
-            tweetImgHtml = `
+        tweetImgHtml = `
             <div class="max-h-[500px] border bg-gray-4 dark:bg-twitter-dark-gray border-gray-4 rounded-xl overflow-hidden">
                 <figure>
                     <img role="button" class="object-cover w-full h-full" src="${tweet.TweetImg}" />
                 </figure>
             </div>`;
-        }
     }
 
-  
-    
     var deleteButtonHtml = getDeleteButtonHtml(tweet.UserId, loggedInUserId, tweet.TweetId);
 
     var tweetHtml = `
@@ -1876,7 +1387,7 @@ function appendTweetToPage(tweet, loggedInUserId, targetElementId) {
                         ${deleteButtonHtml}
                     </a>
                     <p class="overflow-hidden text-sm text-ellipsis text-twitter-dark-gray dark:text-white-0">${tweet.TweetText}</p>
-                    ${tweetImgHtml} ${tweetVidHtml}
+                    ${tweetImgHtml}
                     <div class="flex gap-4 pb-3">
                         <button class="flex items-center gap-1 like-btn" data-tweet-id="${tweet.TweetId}">
                             <svg viewBox="0 0 24 24" aria-hidden="true" class="w-8 p-[0.375rem] rounded-full ${tweet.IsLiked ? 'fill-red-0' : 'fill-white stroke-red-500'} group-hover:bg-blue-1 group-dark:hover:bg-blue-0">
@@ -2136,3 +1647,111 @@ $(document).on('click', '.delete-reply-btn', function () {
 //$(document).ajaxStop(function () {
 //    hideLoader();
 //});
+
+//Hashtag logic 
+//function TopHashtag() {
+//    $.ajax({
+//        url: '/Homepage/TopHashtag',
+//        type: 'GET',
+//        success: function (response) {
+
+//            var TweetCount = 0;
+//            var HashtagCount = 0;
+//            var TopHashtagArray = [];
+//            //console.log(response);
+//            response.forEach(function (TopHashtag) {
+
+//                var totalWords = TopHashtag.split(' ');
+//                totalWords.forEach(function (hashtag) {
+
+//                    if (hashtag.includes("#"))
+//                    {
+//                        TopHashtagArray.push(hashtag);
+//                    }
+//                });               
+//            });
+
+//            var totalTweetByHashtag = [];
+//            response.forEach(function (TopHashtag) {
+
+//                TweetCount++;
+//                response.forEach(function (TopHashtagArray) {
+
+
+//                    if (TopHashtag == TopHashtagArray) {
+
+//                        totalTweetByHashtag.push({ HashtagName: TopHashtagArray, TweetCount: TweetCount })
+//                    }
+//                });
+//            });
+
+//            //TopHashtagArray.push({ hashtagName: hashtag, tweetCount: 10 });
+//            console.log(TopHashtagArray);
+//            console.log(totalTweetByHashtag);
+//            //console.log(TweetCount);
+//        },
+//        error: function (error) {
+
+//        }
+//    });
+//}
+
+//logic of hashtag suggestion
+//if (searchText.length > 0) {
+                //    $.ajax({
+                //        url: '/Homepage/searchHashtag',
+                //        type: 'GET',
+                //        data: { searchText: searchText },
+                //        success: function (response) {
+                //            $('#divUserTweet').empty();
+                //            $('#suggestions').empty();
+
+                //            if (response) {
+                //                // Display tweets
+                //                if (response.Tweets && Array.isArray(response.Tweets)) {
+                //                    //response.Tweets.forEach(function (tweet) {
+                //                    //    appendTweetToPage(tweet, response.loggedInUserId.userId, 'divUserTweet');
+                //                    //});
+
+                //                    // Extract and display suggestions
+                //                    var suggestions = extractHashtags(response.Tweets);
+                //                    suggestions.forEach(function (hashtag) {
+                //                        var suggestionItem = $('<div>')
+                //                            .addClass('suggestion-item p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer')
+                //                            .text(hashtag)
+                //                            .on('click', function () {
+                //                                $('#searchBar').val(hashtag);
+                //                                $('#suggestions').empty();
+                //                                // Optionally trigger the search manually
+                //                                $('#searchBar').trigger('keyup');
+                //                            });
+                //                        $('#suggestions').append(suggestionItem);
+                //                    });
+                //                } else {
+                //                    console.error("Invalid response format");
+                //                }
+                //            }
+                //        },
+                //        error: function (error) {
+                //            console.error("Error fetching data:", error);
+                //        }
+                //    });
+                //} else {
+                //    $('#divUserTweet').empty();
+                //    $('#suggestions').empty();
+                //}
+
+                //function extractHashtags(tweets) {
+                //    var hashtags = new Set();
+                //    tweets.forEach(function (tweet) {
+                //        var words = tweet.TweetText.split(' ');
+                //        words.forEach(function (word) {
+                //            if (word.startsWith('#') && word.length > 1) {
+                //                hashtags.add(word);
+                //            }
+                //        });
+                //    });
+                //    return Array.from(hashtags);
+                //}
+
+

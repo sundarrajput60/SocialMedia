@@ -4,6 +4,7 @@
     <EntitySetMapping Name="Users">
       <EntityTypeMapping TypeName="TwitterDBModel.User">
         <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="IsVerified" ColumnName="IsVerified" />
           <ScalarProperty Name="Country" ColumnName="Country" />
           <ScalarProperty Name="Gender" ColumnName="Gender" />
           <ScalarProperty Name="FirstName" ColumnName="FirstName" />
@@ -71,6 +72,8 @@
     <EntitySetMapping Name="UserNotifications">
       <EntityTypeMapping TypeName="TwitterDBModel.UserNotification">
         <MappingFragment StoreEntitySet="UserNotification">
+          <ScalarProperty Name="ReqStatus" ColumnName="ReqStatus" />
+          <ScalarProperty Name="ReceiverId" ColumnName="ReceiverId" />
           <ScalarProperty Name="NotificationTime" ColumnName="NotificationTime" />
           <ScalarProperty Name="NotificationText" ColumnName="NotificationText" />
           <ScalarProperty Name="TweetId" ColumnName="TweetId" />
@@ -87,6 +90,36 @@
           <ScalarProperty Name="CommentId" ColumnName="CommentId" />
           <ScalarProperty Name="ReplyText" ColumnName="ReplyText" />
           <ScalarProperty Name="ReplyId" ColumnName="ReplyId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ForgotPasswordTokens">
+      <EntityTypeMapping TypeName="TwitterDBModel.ForgotPasswordToken">
+        <MappingFragment StoreEntitySet="ForgotPasswordToken">
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="TokenTime" ColumnName="TokenTime" />
+          <ScalarProperty Name="TokenString" ColumnName="TokenString" />
+          <ScalarProperty Name="TokenId" ColumnName="TokenId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Otps">
+      <EntityTypeMapping TypeName="TwitterDBModel.Otp">
+        <MappingFragment StoreEntitySet="Otp">
+          <ScalarProperty Name="OtpDate" ColumnName="OtpDate" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="OtpNumber" ColumnName="OtpNumber" />
+          <ScalarProperty Name="OtpId" ColumnName="OtpId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserPasswords">
+      <EntityTypeMapping TypeName="TwitterDBModel.UserPassword">
+        <MappingFragment StoreEntitySet="UserPassword">
+          <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+          <ScalarProperty Name="UserPass" ColumnName="UserPass" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="UserPassId" ColumnName="UserPassId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

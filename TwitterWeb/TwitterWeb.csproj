@@ -212,7 +212,13 @@
     <Compile Include="Models\FollowUser.cs">
       <DependentUpon>TwitterDBModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ForgotPasswordToken.cs">
+      <DependentUpon>TwitterDBModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\LikeTweet.cs">
+      <DependentUpon>TwitterDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Otp.cs">
       <DependentUpon>TwitterDBModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TwitterDBModel.Context.cs">
@@ -234,6 +240,9 @@
       <DependentUpon>TwitterDBModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\UserNotification.cs">
+      <DependentUpon>TwitterDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\UserPassword.cs">
       <DependentUpon>TwitterDBModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\UsersTweet.cs">

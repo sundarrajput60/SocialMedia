@@ -25,15 +25,10 @@
     <script src="../assets/js/tailwind.config.js"></script>
     <script defer src="../assets/js/darkMode.js"></script>
     <script src="~/Scripts/CustomJS.js"></script>
+    <script src="~/Scripts/SweetAlert.js"></script>
 </head>
 
 <body>
-
-    <!-- Alert Msg -->
-    @*<div class="alert" id="divAlert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                Invalid Username or Password
-        </div>*@
 
     <main class="grid min-h-screen xlsm:place-content-center dark:bg-blue-4 bg-gray-11">
         <!-- FRAME -->
@@ -108,10 +103,10 @@
                         Login
                     </a>
 
-                    @*<a class="px-10 py-2 text-sm font-bold text-center transition bg-transparent border-2 cursor-pointer border-black-0 rounded-3xl dark:border-white-0 dark:text-white-0 text-black-0 hover:scale-110"
-                               href="./forgot-password.html">
+                    <a class="px-10 py-2 text-sm font-bold text-center transition bg-transparent border-2 cursor-pointer border-black-0 rounded-3xl dark:border-white-0 dark:text-white-0 text-black-0 hover:scale-110"
+                               href="@Url.Action("ForgotPasswordMail","Login")">
                                 Have you forgotten your password?
-                        </a>*@
+                        </a>
                 </form>
             </article>
 

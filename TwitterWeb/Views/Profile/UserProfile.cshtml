@@ -22,7 +22,7 @@
             <section class="flex items-center gap-2 cursor-pointer">
                 <h2 class="text-xl font-semibold dark:text-white-0" id="profileTitle"></h2>
 
-                <div class="w-6">
+                @*<div class="w-6">
                     <svg class="dark:fill-white-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                          aria-label="Cuenta protegida" role="img" data-testid="icon-lock">
                         <g>
@@ -30,7 +30,7 @@
                             </path>
                         </g>
                     </svg>
-                </div>
+                </div>*@
             </section>
         </div>
 
@@ -69,7 +69,7 @@
             <section class="flex items-center gap-2">
                 <h2 class="text-2xl font-semibold dark:text-white-0" id="userName"></h2>
 
-                <div class="w-6">
+                @*<div class="w-6">
                     <svg class="dark:fill-white-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                          aria-label="Cuenta protegida" role="img" data-testid="icon-lock">
                         <g>
@@ -77,7 +77,7 @@
                             </path>
                         </g>
                     </svg>
-                </div>
+                </div>*@
             </section>
 
             <h3 class="font-semibold text-md dark:font-normal text-gray-2" id="uniqueUserName">
@@ -86,7 +86,7 @@
 
         <!-- BIOGRAPHY -->
         <p class="overflow-hidden text-md text-ellipsis text-twitter-dark-gray dark:text-white-0" id="UserBioTxt">
-            🧭🚲🌱📸✨💻💭🎮🥸
+            @*🧭🚲🌱📸✨💻💭🎮🥸*@
         </p>
 
         <!-- JOIN DATE -->
@@ -106,13 +106,13 @@
 
         <!-- FOLLOWING AND FOLLOWERS -->
         <div class="flex gap-3">
-            <a id="btnUserFriend">
+            <a id="btnUserFriend" class="cursor-pointer">
                 <div class="flex items-center gap-1">
                     <span class="font-semibold text-md dark:text-white-0 hover:underline"></span>
                     <span class="font-semibold text-md dark:font-normal text-gray-2 hover:underline">Friends</span>
                 </div>
             </a>
-            <a id="btnUserFriendReq">
+            <a id="btnUserFriendReq"  class="cursor-pointer">
                 <div class="flex items-center gap-1">
                     <span class="font-semibold text-md dark:text-white-0 hover:underline"></span>
                     <span class="font-semibold text-md dark:font-normal text-gray-2 hover:underline">Friend Requests</span>
@@ -129,10 +129,10 @@
                     Edit profile
                 </a>
 
-                <a class="px-4 py-2 font-semibold text-center transition scale-90 rounded-full cursor-pointer xlsm:scale-100 text-white-0 bg-primary hover:scale-100 xlsm:hover:scale-110"
+                @*<a class="px-4 py-2 font-semibold text-center transition scale-90 rounded-full cursor-pointer xlsm:scale-100 text-white-0 bg-primary hover:scale-100 xlsm:hover:scale-110"
                    href="@Url.Action("ComingSoon", "Homepage")">
                     Go to dashboard
-                </a>
+                </a>*@
             </div>
         </div>
     </div>
@@ -140,7 +140,7 @@
 </div>
 
 <!-- TWEETS -->
-<div class="relative bottom-9" id="divUserProfileTweet">
+<div class="relative bottom-9 div-tweet" id="divUserProfileTweet">
     <!-- it will get the dynamic tweets here -->
     
 </div>

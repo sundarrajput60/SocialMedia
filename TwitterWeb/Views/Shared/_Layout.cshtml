@@ -20,6 +20,8 @@
     <script src="../assets/js/tailwind.config.js"></script>
     <script defer src="../assets/js/darkMode.js"></script>
     <script src="~/assets/js/pages.js"></script>
+    <script src="~/Scripts/SweetAlert.js"></script>
+    
 </head>
 <body class="relative flex justify-center llg:px-7 gap-7 bg-white-0 dark:bg-black-0" id="divMainContentBody">
     <div id="loader" class="loader-container">
@@ -27,6 +29,74 @@
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+
+    <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="commentModal">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="relative bg-white rounded-lg w-96">
+                <!-- Close button -->
+                <button class="absolute top-0 right-0 m-3 text-gray-500 hover:text-gray-700 focus:outline-none" id="closeModalBtn" aria-label="Close">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <!-- Modal content -->
+                <div class="p-4">
+                    <h2 id="modalTitle" class="text-xl font-semibold mb-4">Comment on Tweet</h2>
+                    <textarea class="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" rows="5" id="commentText" placeholder="Enter your comment..."></textarea>
+                    <span id="spnCommentModal" class="text-red-0 font-semibold"></span>
+                    <div class="flex justify-end mt-4">
+                        <!-- Submit button -->
+                        <button id="submitCommentBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300">
+                            Submit
+                        </button>
+                        <!-- Close button -->
+                        <button class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300 closeModalBtn">
+                            Close
+                        </button>
+                    </div>
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="modalLoggedInUserId">
+                    <input type="hidden" id="modalTweetId">
+                    <input type="hidden" id="modalCommentId">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="replyModal">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="relative bg-white rounded-lg w-96">
+                <!-- Close button -->
+                <button class="absolute top-0 right-0 m-3 text-gray-500 hover:text-gray-700 focus:outline-none" id="closeModalBtn" aria-label="Close">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <!-- Modal content -->
+                <div class="p-4">
+                    <h2 id="modalTitle" class="text-xl font-semibold mb-4">Reply on comment</h2>
+                    <textarea class="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" rows="5" id="replyText" placeholder="Enter your comment..."></textarea>
+                    <span id="spnCommentReplyModal" class="text-red-0 font-semibold"></span>
+                    <div class="flex justify-end mt-4">
+                        <!-- Submit button -->
+                        <button id="submitReplyBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300">
+                            Submit
+                        </button>
+                        <!-- Close button -->
+                        <button class="closeModalBtn ml-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300 closeModalBtn">
+                            Close
+                        </button>
+                    </div>
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="modalReplyCommentId">
+                    <input type="hidden" id="modalReplyUserId">
+                    <input type="hidden" id="modalReplyTweetId" />
+                    <input type="hidden" id="modalCommentId">
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- LEFT NAV BAR -->
     <aside class="hidden llg:block max-w-72" id="divNavbarleft">
@@ -46,7 +116,7 @@
 
             <!-- NAV BAR -->
             <nav class="flex flex-col items-start gap-3">
-                <a class="w-full group" href="@Url.Action("Index", "Homepage")">
+                <a class="w-full group cursor-pointer" href="@Url.Action("Index", "Homepage")">
                     <div class="flex items-center gap-5 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-hover:bg-gray-3 dark:group-hover:bg-gray-13 group-focus-within:bg-gray-3 dark:group-focus-within:bg-gray-13 group-focus-within:scale-110">
                         <figure>
                             <svg class="w-5 dark:fill-white-0 fill-black-0" xmlns="http://www.w3.org/2000/svg"
@@ -61,16 +131,13 @@
                     </div>
                 </a>
 
-                <a class="w-full group" id="navBtnAllUsers" @*href="@Url.Action("AllUsers", "Homepage")"*@ >
+                <a class="w-full group cursor-pointer" id="navBtnAllUsers" href="" @*href="@Url.Action("AllUsers", "Homepage")"*@>
                     <div class="flex items-center gap-5 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-hover:bg-gray-3 dark:group-hover:bg-gray-13 group-focus-within:bg-gray-3 dark:group-focus-within:bg-gray-13 group-focus-within:scale-110">
                         <figure>
-                            <svg class="w-5 dark:fill-white-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                 aria-hidden="true">
-                                <g>
-                                    <path d="M10.09 3.098L9.72 7h5.99l.39-4.089 1.99.187L17.72 7h3.78v2h-3.97l-.56 6h3.53v2h-3.72l-.38 4.089-1.99-.187.36-3.902H8.78l-.38 4.089-1.99-.187L6.77 17H2.5v-2h4.46l.56-6H3.5V7h4.21l.39-4.089 1.99.187zM14.96 15l.56-6H9.53l-.56 6h5.99z">
-                                    </path>
-                                </g>
+                            <svg class="w-6 dark:fill-white-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
+
                         </figure>
                         <div class="text-lg text-black-0 dark:text-white-0 group-focus-within:font-semibold">
                             Users
@@ -78,10 +145,10 @@
                     </div>
                 </a>
 
-                <a class="w-full group" id="navBtnNotification" @*href="@Url.Action("Notification", "Homepage")"*@>
+                <a class="w-full group cursor-pointer" id="navBtnNotification" href="" @*href="@Url.Action("Notification", "Homepage")"*@>
                     <div class="flex items-center gap-5 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-hover:bg-gray-3 dark:group-hover:bg-gray-13 group-focus-within:bg-gray-3 dark:group-focus-within:bg-gray-13 group-focus-within:scale-110">
                         <figure>
-                            <svg class="w-5 dark:fill-white-0 fill-black-0" xmlns="http://www.w3.org/2000/svg"
+                            <svg class="w-5 dark:fill-white-0" xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 24 24" aria-hidden="true">
                                 <g>
                                     <path d="M19.993 9.042C19.48 5.017 16.054 2 11.996 2s-7.49 3.021-7.999 7.051L2.866 18H7.1c.463 2.282 2.481 4 4.9 4s4.437-1.718 4.9-4h4.236l-1.143-8.958zM12 20c-1.306 0-2.417-.835-2.829-2h5.658c-.412 1.165-1.523 2-2.829 2zm-6.866-4l.847-6.698C6.364 6.272 8.941 4 11.996 4s5.627 2.268 6.013 5.295L18.864 16H5.134z">
@@ -95,55 +162,54 @@
                     </div>
                 </a>
 
-                <a class="w-full group" href="@Url.Action("ComingSoon", "Homepage")">
-                    <div class="flex items-center gap-5 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-hover:bg-gray-3 dark:group-hover:bg-gray-13 group-focus-within:bg-gray-3 dark:group-focus-within:bg-gray-13 group-focus-within:scale-110">
-                        <figure>
-                            <svg class="w-5 fill-black-0 dark:fill-white-0" xmlns="http://www.w3.org/2000/svg"
-                                 viewBox="0 0 24 24" aria-hidden="true">
-                                <g>
-                                    <path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z">
-                                    </path>
-                                </g>
-                            </svg>
-                        </figure>
-                        <div class="text-lg text-black-0 dark:text-white-0 group-focus-within:font-semibold">
-                            Bookmarks
+                @*<a class="w-full group cursor-pointer" href="@Url.Action("ComingSoon", "Homepage")">
+                        <div class="flex items-center gap-5 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-hover:bg-gray-3 dark:group-hover:bg-gray-13 group-focus-within:bg-gray-3 dark:group-focus-within:bg-gray-13 group-focus-within:scale-110">
+                            <figure>
+                                <svg class="w-5 fill-black-0 dark:fill-white-0" xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 24 24" aria-hidden="true">
+                                    <g>
+                                        <path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z">
+                                        </path>
+                                    </g>
+                                </svg>
+                            </figure>
+                            <div class="text-lg text-black-0 dark:text-white-0 group-focus-within:font-semibold">
+                                Bookmarks
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>*@
 
                 <!-- PROFILE -->
-                <a class="w-full group" id="navBtnUserProfile" @*href="@Url.Action("Index", "Profile")"*@>
+                <a class="w-full group cursor-pointer" id="navBtnUserProfile" href="" @*href="@Url.Action("Index", "Profile")"*@>
                     <div class="flex items-center gap-5 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-hover:bg-gray-3 dark:group-hover:bg-gray-13 group-focus-within:bg-gray-3 dark:group-focus-within:bg-gray-13 group-focus-within:scale-110">
                         <figure class="w-9">
-                            <img class="rounded-full " id="NavBarNameProfile" src="" alt="">
+                            <img class="rounded-full" id="navBarNameProfile" src="" alt="">
                         </figure>
 
                         <article class="flex flex-col items-start justify-between">
                             <section class="flex items-center gap-2">
-                                <h2 class="text-lg font-semibold dark:text-white-0" id="NavBarName"></h2>
+                                <h2 class="text-lg font-semibold dark:text-white-0" id="navBarName"></h2>
 
-                                <div class="w-5">
-                                    <svg class="dark:fill-white-0" xmlns="http://www.w3.org/2000/svg"
-                                         viewBox="0 0 24 24" aria-label="Cuenta protegida" role="img"
-                                         data-testid="icon-lock">
-                                        <g>
-                                            <path d="M17.5 7H17v-.25c0-2.76-2.24-5-5-5s-5 2.24-5 5V7h-.5C5.12 7 4 8.12 4 9.5v9C4 19.88 5.12 21 6.5 21h11c1.39 0 2.5-1.12 2.5-2.5v-9C20 8.12 18.89 7 17.5 7zM13 14.73V17h-2v-2.27c-.59-.34-1-.99-1-1.73 0-1.1.9-2 2-2 1.11 0 2 .9 2 2 0 .74-.4 1.39-1 1.73zM15 7H9v-.25c0-1.66 1.35-3 3-3 1.66 0 3 1.34 3 3V7z">
-                                            </path>
-                                        </g>
-                                    </svg>
-                                </div>
+                                @*<div class="w-5">
+                                        <svg class="dark:fill-white-0" xmlns="http://www.w3.org/2000/svg"
+                                             viewBox="0 0 24 24" aria-label="Cuenta protegida" role="img"
+                                             data-testid="icon-lock">
+                                            <g>
+                                                <path d="M17.5 7H17v-.25c0-2.76-2.24-5-5-5s-5 2.24-5 5V7h-.5C5.12 7 4 8.12 4 9.5v9C4 19.88 5.12 21 6.5 21h11c1.39 0 2.5-1.12 2.5-2.5v-9C20 8.12 18.89 7 17.5 7zM13 14.73V17h-2v-2.27c-.59-.34-1-.99-1-1.73 0-1.1.9-2 2-2 1.11 0 2 .9 2 2 0 .74-.4 1.39-1 1.73zM15 7H9v-.25c0-1.66 1.35-3 3-3 1.66 0 3 1.34 3 3V7z">
+                                                </path>
+                                            </g>
+                                        </svg>
+                                    </div>*@
                             </section>
 
-                            <h3 class="text-sm font-semibold dark:font-normal text-gray-2">
-                                @@@Session["UserName"]
+                            <h3 class="text-sm font-semibold dark:font-normal text-gray-2" id="navBarUserName">
                             </h3>
                         </article>
                     </div>
                 </a>
 
                 <!-- LOG OUT -->
-                <a class="w-full group" id="logoutButton" @*href="@Url.Action("Index", "Login")"*@>
+                <a class="w-full group cursor-pointer" id="logoutButton" @*href="@Url.Action("Index", "Login")"*@>
                     <div class="flex items-center gap-6 px-4 py-3 transition rounded-full w-fit group-hover:scale-110 group-focus-within:scale-110 group-hover:bg-red-3 group-focus-within:bg-red-3">
                         <div class="w-7">
                             <svg class="dark:fill-white-0 fill-black-0 group-focus-within:fill-white-0 group-hover:fill-white-0"
@@ -188,6 +254,7 @@
                 <input type="text" id="searchBar"
                        class="w-full p-4 text-lg rounded-full pl-14 text-black-0 dark:text-gray-4 dark:bg-black-2 bg-gray-6 dark:placeholder-gray-5 dark:text-white placeholder-text-lg"
                        placeholder="Search on Twitter" required>
+                <div id="suggestions" class="absolute w-full bg-white dark:bg-black-2 border-gray-300 dark:border-gray-600 z-10 max-h-64 overflow-y-auto rounded-lg shadow-lg"></div>
             </form>
 
             <div class="flex flex-col justify-start pt-3 h-fit bg-gray-6 rounded-3xl dark:bg-black-2 bg-gray-14" id="divTopHashtag">
@@ -195,10 +262,10 @@
                     What's happening
                 </h2>
 
-                
+
             </div>
-            <a class="flex flex-col justify-start pt-3 h-fit bg-gray-6 rounded-3xl dark:bg-black-2 bg-gray-14" id="showAllHashtag" href="#">
-                <h3 class="px-8 pb-3 text-sm font-bold dark:text-gray-3 text-black-0">Show All</h3>
+            <a class="flex flex-col hover:bg-gray-3 justify-start pt-3 h-fit bg-gray-6 rounded-3xl dark:bg-black-2 bg-gray-14" id="showAllHashtag">
+                <h3 class="px-8 pb-3 text-sm font-bold cursor-pointer dark:text-gray-3 text-black-0">Show All</h3>
             </a>
         </div>
     </aside>
@@ -210,7 +277,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
     <script src="~/Scripts/CustomJS.js"></script>
-    <script src="~/Scripts/validation.js"></script>
+    <script src="~/Scripts/SignUp.js"></script>
 
 </body>
 </html>

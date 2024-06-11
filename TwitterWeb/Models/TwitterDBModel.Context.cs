@@ -34,6 +34,9 @@ namespace TwitterWeb.Models
         public virtual DbSet<FollowUser> FollowUsers { get; set; }
         public virtual DbSet<UserNotification> UserNotifications { get; set; }
         public virtual DbSet<CommentReply> CommentReplies { get; set; }
+        public virtual DbSet<ForgotPasswordToken> ForgotPasswordTokens { get; set; }
+        public virtual DbSet<Otp> Otps { get; set; }
+        public virtual DbSet<UserPassword> UserPasswords { get; set; }
     
         public virtual int AddUsers(string userName, string userEmail, string userPassword, string profilePic, string profileBgPic)
         {

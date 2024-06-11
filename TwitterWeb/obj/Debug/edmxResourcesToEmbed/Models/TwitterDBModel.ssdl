@@ -32,6 +32,15 @@
     <Property Name="FollowStatus" Type="varchar" MaxLength="10" />
     <Property Name="FollowDate" Type="datetime" />
   </EntityType>
+  <EntityType Name="ForgotPasswordToken">
+    <Key>
+      <PropertyRef Name="TokenId" />
+    </Key>
+    <Property Name="TokenId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TokenString" Type="varchar" MaxLength="50" />
+    <Property Name="TokenTime" Type="datetime" />
+    <Property Name="UserId" Type="int" />
+  </EntityType>
   <EntityType Name="LikeTweet">
     <Key>
       <PropertyRef Name="LikeId" />
@@ -40,6 +49,15 @@
     <Property Name="TweetId" Type="int" />
     <Property Name="UserId" Type="int" />
     <Property Name="LikedDate" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Otp">
+    <Key>
+      <PropertyRef Name="OtpId" />
+    </Key>
+    <Property Name="OtpId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="OtpNumber" Type="int" />
+    <Property Name="UserId" Type="int" />
+    <Property Name="OtpDate" Type="datetime" />
   </EntityType>
   <EntityType Name="UserNotification">
     <Key>
@@ -50,6 +68,17 @@
     <Property Name="TweetId" Type="int" />
     <Property Name="NotificationText" Type="varchar" MaxLength="100" />
     <Property Name="NotificationTime" Type="datetime" />
+    <Property Name="ReceiverId" Type="int" />
+    <Property Name="ReqStatus" Type="varchar" MaxLength="10" />
+  </EntityType>
+  <EntityType Name="UserPassword">
+    <Key>
+      <PropertyRef Name="UserPassId" />
+    </Key>
+    <Property Name="UserPassId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserId" Type="int" Nullable="false" />
+    <Property Name="UserPass" Type="varchar" MaxLength="30" Nullable="false" />
+    <Property Name="CreatedAt" Type="datetime" Nullable="false" />
   </EntityType>
   <EntityType Name="Users">
     <Key>
@@ -67,6 +96,7 @@
     <Property Name="ProfilePic" Type="varchar(max)" />
     <Property Name="ProfileBgPic" Type="varchar(max)" />
     <Property Name="CreatedAt" Type="datetime" />
+    <Property Name="IsVerified" Type="bit" />
   </EntityType>
   <EntityType Name="UsersTweet">
     <Key>
@@ -105,6 +135,18 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK__UserPassw__UserI__09A971A2">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="UserPassword" Type="Self.UserPassword" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="UserPassword">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK__UsersTwee__UserI__0BC6C43E">
     <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
     <End Role="UsersTweet" Type="Self.UsersTweet" Multiplicity="*" />
@@ -113,6 +155,18 @@
         <PropertyRef Name="UserId" />
       </Principal>
       <Dependent Role="UsersTweet">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Otp_UserId">
+    <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+    <End Role="Otp" Type="Self.Otp" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Otp">
         <PropertyRef Name="UserId" />
       </Dependent>
     </ReferentialConstraint>
@@ -224,8 +278,11 @@
     <EntitySet Name="CommentReply" EntityType="Self.CommentReply" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="CommentTweet" EntityType="Self.CommentTweet" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="FollowUser" EntityType="Self.FollowUser" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ForgotPasswordToken" EntityType="Self.ForgotPasswordToken" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="LikeTweet" EntityType="Self.LikeTweet" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Otp" EntityType="Self.Otp" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="UserNotification" EntityType="Self.UserNotification" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="UserPassword" EntityType="Self.UserPassword" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="UsersTweet" EntityType="Self.UsersTweet" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK__CommentRe__Comme__5070F446" Association="Self.FK__CommentRe__Comme__5070F446">
@@ -236,9 +293,17 @@
       <End Role="Users" EntitySet="Users" />
       <End Role="CommentReply" EntitySet="CommentReply" />
     </AssociationSet>
+    <AssociationSet Name="FK__UserPassw__UserI__09A971A2" Association="Self.FK__UserPassw__UserI__09A971A2">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="UserPassword" EntitySet="UserPassword" />
+    </AssociationSet>
     <AssociationSet Name="FK__UsersTwee__UserI__0BC6C43E" Association="Self.FK__UsersTwee__UserI__0BC6C43E">
       <End Role="Users" EntitySet="Users" />
       <End Role="UsersTweet" EntitySet="UsersTweet" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Otp_UserId" Association="Self.FK_Otp_UserId">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Otp" EntitySet="Otp" />
     </AssociationSet>
     <AssociationSet Name="FK_Tweet" Association="Self.FK_Tweet">
       <End Role="UsersTweet" EntitySet="UsersTweet" />

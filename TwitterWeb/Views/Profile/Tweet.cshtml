@@ -57,9 +57,27 @@
                 <textarea id="txtTweetText" class="p-5 text-lg bg-transparent border-[2.8px] resize-none rounded-xl border-primary dark:text-white-0"
                           placeholder="Write your tweet here" maxlength="240" rows="6"></textarea>
                 <span id="spnTweetText" class="text-red-500 font-semibold"></span>
+
+                <figure class="relative h-40 rounded-t-xl hidden" id="filePreviewContainer">
+                    <img class="object-fill w-full h-full rounded-t-xl hidden" src="" alt="Banner" id="imgTweetPreview">
+                    <video class="object-fill w-full h-full rounded-t-xl hidden" id="videoTweetPreview" autoplay loop></video>
+
+                    <div class="absolute flex gap-2 top-2 right-2">
+                        <button class="p-3 transition rounded-full cursor-pointer w-fit hover:scale-110 bg-gray-1"
+                                id="deleteTweetImgVid">
+                            <svg class="w-6 fill-primary" viewBox="0 0 24 24" aria-hidden="true">
+                                <g>
+                                    <path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z">
+                                    </path>
+                                </g>
+                            </svg>
+                        </button>
+                    </div>
+                </figure>
+
                 <label>
                     <span class="sr-only">Choose file to upload</span>
-                    <input type="file" id="fileUploadTweetImg" accept="image/jpeg,image/png,image/webp"
+                    <input type="file" id="fileUploadTweetImg" accept="image/jpeg,image/png,image/webp,video/*"
                            class="w-full text-sm font-semibold text-black-0 file:text-sm file:font-bold file:text-white-0 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-primary file:border-transparent dark:text-gray-2" />
                 </label>
             </div>

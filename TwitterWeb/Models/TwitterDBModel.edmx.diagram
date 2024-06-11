@@ -5,24 +5,29 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="43ffb206e3324674abc0763870f5258d" Name="Diagram1" ZoomLevel="75">
-        <EntityTypeShape EntityType="TwitterDBModel.User" Width="1.5" PointX="1.125" PointY="0.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TwitterDBModel.UsersTweet" Width="1.5" PointX="5.875" PointY="0.875" />
+        <EntityTypeShape EntityType="TwitterDBModel.User" Width="1.5" PointX="1.125" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="TwitterDBModel.UsersTweet" Width="1.5" PointX="5.75" PointY="0.5" />
         <AssociationConnector Association="TwitterDBModel.FK__UsersTwee__UserI__0BC6C43E" />
-        <EntityTypeShape EntityType="TwitterDBModel.LikeTweet" Width="1.5" PointX="8.875" PointY="1.25" />
+        <EntityTypeShape EntityType="TwitterDBModel.LikeTweet" Width="1.5" PointX="10.75" PointY="2.5" />
         <AssociationConnector Association="TwitterDBModel.FK_Tweet" />
         <AssociationConnector Association="TwitterDBModel.FK_User" />
-        <EntityTypeShape EntityType="TwitterDBModel.CommentTweet" Width="1.5" PointX="3.625" PointY="0.875" />
+        <EntityTypeShape EntityType="TwitterDBModel.CommentTweet" Width="1.5" PointX="3.5" PointY="0.625" />
         <AssociationConnector Association="TwitterDBModel.FK_TweetId_Comment" />
         <AssociationConnector Association="TwitterDBModel.FK_User_Comment" />
-        <EntityTypeShape EntityType="TwitterDBModel.FollowUser" Width="1.5" PointX="1.75" PointY="6" />
+        <EntityTypeShape EntityType="TwitterDBModel.FollowUser" Width="1.5" PointX="3.25" PointY="6.875" />
         <AssociationConnector Association="TwitterDBModel.FK_UserId_ReceiverId" />
         <AssociationConnector Association="TwitterDBModel.FK_UserId_SenderId" />
-        <EntityTypeShape EntityType="TwitterDBModel.UserNotification" Width="1.5" PointX="5.25" PointY="5.375" />
+        <EntityTypeShape EntityType="TwitterDBModel.UserNotification" Width="1.5" PointX="5.25" PointY="6" />
         <AssociationConnector Association="TwitterDBModel.FK_TweetId_Notification" />
         <AssociationConnector Association="TwitterDBModel.FK_UserId_Notification" />
         <EntityTypeShape EntityType="TwitterDBModel.CommentReply" Width="1.5" PointX="8.875" PointY="4.75" />
         <AssociationConnector Association="TwitterDBModel.FK__CommentRe__Comme__5070F446" />
         <AssociationConnector Association="TwitterDBModel.FK__CommentRe__UserI__5165187F" />
+        <EntityTypeShape EntityType="TwitterDBModel.ForgotPasswordToken" Width="1.5" PointX="11.5" PointY="5.125" />
+        <EntityTypeShape EntityType="TwitterDBModel.Otp" Width="1.5" PointX="8.25" PointY="0.75" />
+        <AssociationConnector Association="TwitterDBModel.FK_Otp_UserId" />
+        <EntityTypeShape EntityType="TwitterDBModel.UserPassword" Width="1.5" PointX="1.375" PointY="7.625" />
+        <AssociationConnector Association="TwitterDBModel.FK__UserPassw__UserI__09A971A2" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -12,17 +12,11 @@ namespace TwitterWeb.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class UserNotification
+    public partial class ForgotPasswordToken
     {
-        public int NotificationId { get; set; }
+        public int TokenId { get; set; }
+        public string TokenString { get; set; }
+        public Nullable<System.DateTime> TokenTime { get; set; }
         public Nullable<int> UserId { get; set; }
-        public Nullable<int> TweetId { get; set; }
-        public string NotificationText { get; set; }
-        public Nullable<System.DateTime> NotificationTime { get; set; }
-        public Nullable<int> ReceiverId { get; set; }
-        public string ReqStatus { get; set; }
-    
-        public virtual UsersTweet UsersTweet { get; set; }
-        public virtual User User { get; set; }
     }
 }

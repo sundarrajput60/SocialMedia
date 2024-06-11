@@ -18,5 +18,10 @@ namespace TwitterWeb.Controllers
             }
             return View();
         }
+
+        public ActionResult NewUserVerification(int? id)
+        {
+            return View();
+        }
     }
 }

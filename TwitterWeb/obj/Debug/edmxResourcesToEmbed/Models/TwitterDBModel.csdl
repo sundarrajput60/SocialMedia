@@ -23,6 +23,9 @@
     <NavigationProperty Name="FollowUsers1" Relationship="TwitterDBModel.FK_UserId_SenderId" FromRole="User" ToRole="FollowUser" />
     <NavigationProperty Name="UserNotifications" Relationship="TwitterDBModel.FK_UserId_Notification" FromRole="User" ToRole="UserNotification" />
     <NavigationProperty Name="CommentReplies" Relationship="TwitterDBModel.FK__CommentRe__UserI__5165187F" FromRole="User" ToRole="CommentReply" />
+    <Property Name="IsVerified" Type="Boolean" />
+    <NavigationProperty Name="Otps" Relationship="TwitterDBModel.FK_Otp_UserId" FromRole="User" ToRole="Otp" />
+    <NavigationProperty Name="UserPasswords" Relationship="TwitterDBModel.FK__UserPassw__UserI__09A971A2" FromRole="User" ToRole="UserPassword" />
   </EntityType>
   <EntityContainer Name="DBContext" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="Users" EntityType="Self.User" />
@@ -82,6 +85,17 @@
     <AssociationSet Name="FK__CommentRe__UserI__5165187F" Association="TwitterDBModel.FK__CommentRe__UserI__5165187F">
       <End Role="User" EntitySet="Users" />
       <End Role="CommentReply" EntitySet="CommentReplies" />
+    </AssociationSet>
+    <EntitySet Name="ForgotPasswordTokens" EntityType="TwitterDBModel.ForgotPasswordToken" />
+    <EntitySet Name="Otps" EntityType="TwitterDBModel.Otp" />
+    <AssociationSet Name="FK_Otp_UserId" Association="TwitterDBModel.FK_Otp_UserId">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Otp" EntitySet="Otps" />
+    </AssociationSet>
+    <EntitySet Name="UserPasswords" EntityType="TwitterDBModel.UserPassword" />
+    <AssociationSet Name="FK__UserPassw__UserI__09A971A2" Association="TwitterDBModel.FK__UserPassw__UserI__09A971A2">
+      <End Role="User" EntitySet="Users" />
+      <End Role="UserPassword" EntitySet="UserPasswords" />
     </AssociationSet>
   </EntityContainer>
   <EntityType Name="UsersTweet">
@@ -234,6 +248,8 @@
     <Property Name="NotificationTime" Type="DateTime" Precision="3" />
     <NavigationProperty Name="UsersTweet" Relationship="TwitterDBModel.FK_TweetId_Notification" FromRole="UserNotification" ToRole="UsersTweet" />
     <NavigationProperty Name="User" Relationship="TwitterDBModel.FK_UserId_Notification" FromRole="UserNotification" ToRole="User" />
+    <Property Name="ReceiverId" Type="Int32" />
+    <Property Name="ReqStatus" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
   </EntityType>
   <Association Name="FK_TweetId_Notification">
     <End Type="TwitterDBModel.UsersTweet" Role="UsersTweet" Multiplicity="0..1" />
@@ -291,6 +307,59 @@
         <PropertyRef Name="UserId" />
       </Principal>
       <Dependent Role="CommentReply">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="ForgotPasswordToken">
+    <Key>
+      <PropertyRef Name="TokenId" />
+    </Key>
+    <Property Name="TokenId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TokenString" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="TokenTime" Type="DateTime" Precision="3" />
+    <Property Name="UserId" Type="Int32" />
+  </EntityType>
+  <EntityType Name="Otp">
+    <Key>
+      <PropertyRef Name="OtpId" />
+    </Key>
+    <Property Name="OtpId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="OtpNumber" Type="Int32" />
+    <Property Name="UserId" Type="Int32" />
+    <Property Name="OtpDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK_Otp_UserId" FromRole="Otp" ToRole="User" />
+  </EntityType>
+  <Association Name="FK_Otp_UserId">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="TwitterDBModel.Otp" Role="Otp" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Otp">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="UserPassword">
+    <Key>
+      <PropertyRef Name="UserPassId" />
+    </Key>
+    <Property Name="UserPassId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserId" Type="Int32" Nullable="false" />
+    <Property Name="UserPass" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+    <NavigationProperty Name="User" Relationship="TwitterDBModel.FK__UserPassw__UserI__09A971A2" FromRole="UserPassword" ToRole="User" />
+  </EntityType>
+  <Association Name="FK__UserPassw__UserI__09A971A2">
+    <End Type="TwitterDBModel.User" Role="User" Multiplicity="1" />
+    <End Type="TwitterDBModel.UserPassword" Role="UserPassword" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="UserPassword">
         <PropertyRef Name="UserId" />
       </Dependent>
     </ReferentialConstraint>

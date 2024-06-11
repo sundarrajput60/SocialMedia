@@ -24,6 +24,8 @@ namespace TwitterWeb.Models
             this.FollowUsers1 = new HashSet<FollowUser>();
             this.UserNotifications = new HashSet<UserNotification>();
             this.CommentReplies = new HashSet<CommentReply>();
+            this.Otps = new HashSet<Otp>();
+            this.UserPasswords = new HashSet<UserPassword>();
         }
     
         public int UserId { get; set; }
@@ -38,6 +40,7 @@ namespace TwitterWeb.Models
         public string FirstName { get; set; }
         public string Gender { get; set; }
         public string Country { get; set; }
+        public Nullable<bool> IsVerified { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<UsersTweet> UsersTweets { get; set; }
@@ -53,5 +56,9 @@ namespace TwitterWeb.Models
         public virtual ICollection<UserNotification> UserNotifications { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CommentReply> CommentReplies { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Otp> Otps { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<UserPassword> UserPasswords { get; set; }
     }
 }

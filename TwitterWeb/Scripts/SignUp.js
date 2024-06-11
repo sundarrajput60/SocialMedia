@@ -15,6 +15,10 @@
             $('#spn-error-msg-username').html("Username can't be empty");
             flag = 1;
 
+        } else if (userName.length < 4) {
+            $('#spn-error-msg-username').html("Username must have atleast 4 characters");
+            flag = 1;
+
         }
         else if (!isNaN(userName) || namePattern.test(userName)) {
             $('#spn-error-msg-username').html("Numbers & special characters are not allowed");
@@ -65,26 +69,61 @@
 
 
             $.ajax({
-
                 url: '/api/SignUpApi/AddUser',
                 type: 'POST',
                 data: JSON.stringify(SignUpObj),
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8',
+                beforeSend: function () {
+                    // Show loading dialog
+                    Swal.fire({
+                        title: "Signing up...",
+                        html: "Please wait, we are working on it.",
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
                 success: function (res) {
+                    Swal.close(); // Close the loading dialog
 
-                    ClearForm();
-                    window.location.href = '/Login/Index';
+                    if (res == 1) {
+                        $('#spn-error-msg-username').html("Username already used");
+                    } else if (res == 2) {
+                        $('#spn-error-msg-email').html("Email already used");
+                    } else if (res == 3) {
+                        $('#spn-error-msg-username').html("Username already used");
+                        $('#spn-error-msg-email').html("Email already used");
+                    } else {
+                        $('#spn-error-msg-username').html("");
+                        $('#spn-error-msg-email').html("");
+                    }
+
+                    var newUserId = res.newUser ? res.newUser.UserId : null;
+                    if (newUserId != null) {
+                        Swal.fire({
+                            position: "center",
+                            icon: "info",
+                            title: "Please Verify OTP",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/Signup/NewUserVerification?id=' + newUserId;
+                        });
+                    }
                 },
                 error: function (err) {
+                    Swal.close(); // Close the loading dialog
+
                     if (err.status === 500) {
-                        $('#spn-error-msg-email').html("Email already used");
-                    }
-                    else {
+                        $('#spn-error-msg-email').html("We are sorry, unable to process your request");
+                    } else {
                         $('#spn-error-msg-email').html("");
                     }
                 }
             });
+
         }
     });
 });

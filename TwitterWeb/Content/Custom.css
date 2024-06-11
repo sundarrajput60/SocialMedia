@@ -23,6 +23,13 @@
         color: black;
     }
 */
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 #commentModal {
     backdrop-filter: blur(5px); 
     background-color: rgba(0, 0, 0, 0.5); 

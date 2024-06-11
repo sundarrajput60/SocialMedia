@@ -51,76 +51,10 @@
 
     <hr />*@
 <!-- Modal -->
-<div class="fixed z-10 inset-0 overflow-y-auto hidden" id="commentModal">
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="relative bg-white rounded-lg w-96">
-            <!-- Close button -->
-            <button class="absolute top-0 right-0 m-3 text-gray-500 hover:text-gray-700 focus:outline-none" id="closeModalBtn" aria-label="Close">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            <!-- Modal content -->
-            <div class="p-4">
-                <h2 id="modalTitle" class="text-xl font-semibold mb-4">Comment on Tweet</h2>
-                <textarea class="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" rows="5" id="commentText" placeholder="Enter your comment..."></textarea>
-                <span id="spnCommentModal" class="text-red-0 font-semibold"></span>
-                <div class="flex justify-end mt-4">
-                    <!-- Submit button -->
-                    <button id="submitCommentBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300">
-                        Submit
-                    </button>
-                    <!-- Close button -->
-                    <button class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300 closeModalBtn">
-                        Close
-                    </button>
-                </div>
-                <!-- Hidden fields -->
-                <input type="hidden" id="modalLoggedInUserId">
-                <input type="hidden" id="modalTweetId">
-                <input type="hidden" id="modalCommentId">
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="fixed z-10 inset-0 overflow-y-auto hidden" id="replyModal">
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="relative bg-white rounded-lg w-96">
-            <!-- Close button -->
-            <button class="absolute top-0 right-0 m-3 text-gray-500 hover:text-gray-700 focus:outline-none" id="closeModalBtn" aria-label="Close">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            <!-- Modal content -->
-            <div class="p-4">
-                <h2 id="modalTitle" class="text-xl font-semibold mb-4">Reply on comment</h2>
-                <textarea class="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" rows="5" id="replyText" placeholder="Enter your comment..."></textarea>
-                <span id="spnCommentReplyModal" class="text-red-0 font-semibold" ></span>
-                <div class="flex justify-end mt-4">
-                    <!-- Submit button -->
-                    <button id="submitReplyBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300">
-                        Submit
-                    </button>
-                    <!-- Close button -->
-                    <button class="closeModalBtn ml-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300 closeModalBtn">
-                        Close
-                    </button>
-                </div>
-                <!-- Hidden fields -->
-                <input type="hidden" id="modalReplyCommentId">
-                <input type="hidden" id="modalReplyUserId">
-                <input type="hidden" id="modalReplyTweetId" />
-                <input type="hidden" id="modalCommentId">
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- TWEETS -->
 <!-- IMAGE TWEETS -->
-<div class="border-b cursor-pointer border-gray-9 dark:bg-black-0 dark:border-black-5" id="divUserTweet">
+<div class="border-b cursor-pointer border-gray-9 dark:bg-black-0 dark:border-black-5 div-tweet" id="divUserTweet">
     <!-- TWEET -->
 
 </div>
